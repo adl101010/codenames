@@ -7,6 +7,12 @@ const settingToggles = [
     setting: 'fullscreen',
     desc: 'Enlarge the board to take up the whole page.',
   },
+  {
+    name: 'Mature',
+    setting: 'matureWords',
+    desc:
+      'Include mature (Deep Undercover) words in future games. Off by default.',
+  },
 ];
 
 export class Settings {

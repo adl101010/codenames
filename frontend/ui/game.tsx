@@ -2,6 +2,7 @@ import * as React from 'react';
 import axios from 'axios';
 import { Settings, SettingsButton, SettingsPanel } from '~/ui/settings';
 import Timer from '~/ui/timer';
+import { computeWordSet } from '~/wordset';
 
 const defaultFavicon =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAA8SURBVHgB7dHBDQAgCAPA1oVkBWdzPR84kW4AD0LCg36bXJqUcLL2eVY/EEwDFQBeEfPnqUpkLmigAvABK38Grs5TfaMAAAAASUVORK5CYII=';
@@ -222,7 +223,10 @@ export class Game extends React.Component {
     axios
       .post('/next-game', {
         game_id: this.state.game.id,
-        word_set: this.state.game.word_set,
+        // Recompute rather than reusing this.state.game.word_set, so a
+        // Mature toggle flipped mid-party takes effect on the very next
+        // game instead of only on ones created fresh from the lobby.
+        word_set: computeWordSet(this.state.settings),
         create_new: true,
         timer_duration_ms: this.state.game.timer_duration_ms,
         enforce_timer: this.state.game.enforce_timer,

@@ -1,9 +1,8 @@
 import * as React from 'react';
 import axios from 'axios';
 import TimerSettings from '~/ui/timer_settings';
-import OriginalWords from '~/words.json';
-
-const wordSet = Object.values(OriginalWords).flat();
+import { Settings } from '~/ui/settings';
+import { computeWordSet } from '~/wordset';
 
 export const Lobby = ({ defaultGameID }) => {
   const [newGameName, setNewGameName] = React.useState(defaultGameID);
@@ -19,7 +18,7 @@ export const Lobby = ({ defaultGameID }) => {
     axios
       .post('/next-game', {
         game_id: newGameName,
-        word_set: wordSet,
+        word_set: computeWordSet(Settings.load()),
         create_new: false,
         timer_duration_ms:
           timer && timer.length ? timer[0] * 60 * 1000 + timer[1] * 1000 : 0,
