@@ -23,12 +23,6 @@ export class Game extends React.Component {
 
   public extraClasses() {
     var classes = '';
-    if (this.state.settings.colorBlind) {
-      classes += ' color-blind';
-    }
-    if (this.state.settings.darkMode) {
-      classes += ' dark-mode';
-    }
     if (this.state.settings.fullscreen) {
       classes += ' full-screen';
     }
@@ -43,7 +37,6 @@ export class Game extends React.Component {
 
   public componentDidMount(prevProps, prevState) {
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
-    this.setDarkMode(prevProps, prevState);
     this.setTurnIndicatorFavicon(prevProps, prevState);
     this.refresh();
   }
@@ -55,17 +48,7 @@ export class Game extends React.Component {
   }
 
   public componentDidUpdate(prevProps, prevState) {
-    this.setDarkMode(prevProps, prevState);
     this.setTurnIndicatorFavicon(prevProps, prevState);
-  }
-
-  private setDarkMode(prevProps, prevState) {
-    if (!prevState?.settings.darkMode && this.state.settings.darkMode) {
-      document.body.classList.add('dark-mode');
-    }
-    if (prevState?.settings.darkMode && !this.state.settings.darkMode) {
-      document.body.classList.remove('dark-mode');
-    }
   }
 
   private setTurnIndicatorFavicon(prevProps, prevState) {

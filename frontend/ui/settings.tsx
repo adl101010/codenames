@@ -8,17 +8,6 @@ const settingToggles = [
     desc: 'Enlarge the board to take up the whole page.',
   },
   {
-    name: 'Color-blind',
-    setting: 'colorBlind',
-    desc:
-      'Add patterned borders to help color-blind players distinguish teams.',
-  },
-  {
-    name: 'Dark',
-    setting: 'darkMode',
-    desc: 'Darken the mood.',
-  },
-  {
     name: 'Clue giver may guess',
     setting: 'cluegiverMayGuess',
     desc: 'When enabled, clicking a word from clue giver view reveals the word.',

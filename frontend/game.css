@@ -12,16 +12,6 @@
   --mono: ui-monospace, 'SFMono-Regular', 'Courier New', monospace;
   --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
 }
-.dark-mode {
-  --paper: #17150f;
-  --paper-2: #24211a;
-  --ink: #e7dfc8;
-  --navy: #7fb3cf;
-  --brick: #d9836f;
-  --olive: #b8b071;
-  --redacted: #0b0a08;
-  --line: rgba(231, 223, 200, 0.3);
-}
 
 #game-view,
 .loading {
@@ -230,8 +220,12 @@
   color: var(--navy);
 }
 .cluegiver .black.hidden-word {
-  background: var(--redacted);
-  color: var(--redacted);
+  background: repeating-linear-gradient(
+    135deg,
+    var(--redacted) 0 10px,
+    #2a1210 10px 20px
+  );
+  color: var(--paper);
   outline: 3px solid var(--brick);
 }
 .cluegiver .cell {
@@ -251,10 +245,17 @@
   box-shadow: none;
 }
 .board .black.revealed {
-  background: var(--redacted);
+  background: repeating-linear-gradient(
+    135deg,
+    var(--redacted) 0 10px,
+    #2a1210 10px 20px
+  );
   color: var(--paper);
-  border-color: var(--redacted);
+  border-color: var(--brick);
   box-shadow: none;
+}
+.board .black.revealed .word::before {
+  content: '\2620  ';
 }
 .player .board.win > .cell.red.hidden-word {
   background: color-mix(in srgb, var(--brick) 40%, var(--paper-2));
@@ -264,7 +265,7 @@
 }
 .player .board.win > .cell.black.hidden-word {
   background: color-mix(in srgb, var(--redacted) 40%, var(--paper-2));
-  color: var(--redacted);
+  color: var(--ink);
   outline: none;
 }
 .cluegiver .board.win > .cell.neutral {
@@ -275,43 +276,6 @@
 #remaining span {
   display: inline-block;
   padding: 3px 5px;
-}
-
-.color-blind #status {
-  padding: 3px 5px;
-}
-
-.color-blind .blue-remaining,
-.color-blind #status-line.blue #status {
-  border: 3px solid var(--navy);
-}
-
-.color-blind .red-remaining,
-.color-blind #status-line.red #status {
-  border: 3px dashed var(--brick);
-}
-
-.color-blind.cluegiver .red.hidden-word,
-.color-blind .red.revealed {
-  outline: 3px dashed var(--brick);
-  border: 1px solid var(--paper);
-}
-
-.color-blind.cluegiver .blue.hidden-word,
-.color-blind .blue.revealed {
-  outline: 3px solid var(--navy);
-  border: 1px solid var(--paper);
-}
-
-.color-blind .revealed .word {
-  text-decoration: underline;
-}
-
-.dark-mode {
-  background: var(--paper);
-}
-.dark-mode h1 {
-  color: var(--ink);
 }
 
 #game-view.full-screen {

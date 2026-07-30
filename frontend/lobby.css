@@ -12,16 +12,6 @@
   --mono: ui-monospace, 'SFMono-Regular', 'Courier New', monospace;
   --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
 }
-.dark-mode {
-  --paper: #17150f;
-  --paper-2: #24211a;
-  --ink: #e7dfc8;
-  --navy: #7fb3cf;
-  --brick: #d9836f;
-  --olive: #b8b071;
-  --redacted: #0b0a08;
-  --line: rgba(231, 223, 200, 0.3);
-}
 
 html,
 body {
