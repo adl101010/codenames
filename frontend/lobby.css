@@ -27,13 +27,13 @@ body {
     radial-gradient(ellipse at 50% 100%, rgba(23, 21, 18, 0.16), transparent 65%),
     repeating-linear-gradient(
       0deg,
-      rgba(33, 31, 24, 0.035) 0 1px,
-      transparent 1px 3px
+      rgba(33, 31, 24, 0.1) 0 1px,
+      transparent 1px 4px
     ),
     repeating-linear-gradient(
       90deg,
-      rgba(33, 31, 24, 0.028) 0 1px,
-      transparent 1px 3px
+      rgba(33, 31, 24, 0.08) 0 1px,
+      transparent 1px 4px
     );
   background-attachment: fixed;
 }
