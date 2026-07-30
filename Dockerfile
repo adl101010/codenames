@@ -9,7 +9,10 @@ RUN apk add gcc musl-dev \
 FROM node:12-alpine as frontend
 COPY . /app
 WORKDIR /app/frontend
-RUN npm install -g parcel-bundler \
+# python2/make/g++ let node-gyp compile native deps (e.g. deasync) from source on
+# platforms without a prebuilt binary, such as arm64.
+RUN apk add --no-cache python2 make g++ \
+    && npm install -g parcel-bundler \
     && npm install \
     && sh build.sh
 
