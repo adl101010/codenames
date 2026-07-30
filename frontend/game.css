@@ -1,13 +1,40 @@
+/* Field Dossier theme tokens. Also declared in lobby.css so each
+   stylesheet is self-contained regardless of load order. */
+:root {
+  --paper: #e9e2cc;
+  --paper-2: #ded5b8;
+  --ink: #211f18;
+  --navy: #1f3a4d;
+  --brick: #8c2f26;
+  --olive: #6b6b3a;
+  --redacted: #171512;
+  --line: rgba(33, 31, 24, 0.35);
+  --mono: ui-monospace, 'SFMono-Regular', 'Courier New', monospace;
+  --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+}
+.dark-mode {
+  --paper: #17150f;
+  --paper-2: #24211a;
+  --ink: #e7dfc8;
+  --navy: #7fb3cf;
+  --brick: #d9836f;
+  --olive: #b8b071;
+  --redacted: #0b0a08;
+  --line: rgba(231, 223, 200, 0.3);
+}
+
 #game-view,
 .loading {
   width: 700px;
   margin: 0 auto;
+  font-family: var(--serif);
+  color: var(--ink);
 }
 
 #infoContent {
-  font-family: system, -apple-system, BlinkMacSystemFont, 'Helvetica Neue',
-    'Lucida Grande';
-  border-bottom: 1px #eee solid;
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border-bottom: 1px dashed var(--line);
   display: grid;
   grid-auto-flow: column;
   grid-gap: 2em;
@@ -17,39 +44,53 @@
 }
 
 #share {
-  color: #888;
-  font-size: 0.8em;
+  color: var(--ink);
+  opacity: 0.65;
+  font-size: 0.85em;
 }
 
 #share .url {
-  color: #888;
+  color: inherit;
 }
 
 #timer {
   font-size: 1.5em;
-  font-family: 'Courier New', monospace;
+  font-family: var(--mono);
+  font-weight: 700;
 }
 
 #status-line {
   margin: 1em 0;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.85em;
+  padding: 0.6em 0.1em;
+  border-top: 1px dashed var(--line);
+  border-bottom: 1px dashed var(--line);
+}
+.status-text {
+  font-weight: 700;
 }
 .red-turn .status-text {
-  color: #d13030;
+  color: var(--brick);
 }
 .blue-turn .status-text {
-  color: #4183cc;
+  color: var(--navy);
 }
 
 #remaining {
   width: 10em;
+  font-weight: 700;
 }
 #remaining .red-remaining {
-  color: #d13030;
+  color: var(--brick);
 }
 #remaining .blue-remaining {
-  color: #4183cc;
+  color: var(--navy);
 }
 
 #end-turn-cont {
@@ -58,27 +99,41 @@
 }
 
 #end-turn-btn {
-  border: 1px #ddd solid;
-  border-radius: 5px 5px 5px 5px;
-  -moz-border-radius: 5px 5px 5px 5px;
-  -webkit-border-radius: 5px 5px 5px 5px;
-  padding: 5px;
-  background: #eee;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.85em;
+  font-weight: 700;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  padding: 0.5em 0.8em;
+  background: var(--paper-2);
+  color: var(--ink);
   cursor: pointer;
+}
+#end-turn-btn:hover {
+  background: var(--navy);
+  color: var(--paper);
+  border-color: var(--navy);
 }
 
 #mode-toggle {
   text-align: right;
-  margin: 0.5em 0;
+  margin: 1.3em 0 0.5em;
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8em;
 }
 
 #mode-toggle button {
-  padding: 5px;
-  border: 1px #ddd solid;
-  background: #eee;
+  padding: 0.6em 1em;
+  border: 1px solid var(--ink);
+  background: var(--paper-2);
+  color: var(--ink);
   cursor: pointer;
 }
 
@@ -91,25 +146,26 @@
 
 #mode-toggle button.cluegiver {
   border-left: none;
-  border-radius: 0 5px 5px 0;
-  -moz-border-radius: 0 5px 5px 0;
-  -webkit-border-radius: 0 5px 5px 0;
+  border-radius: 0 2px 2px 0;
 }
 
 #mode-toggle button.player {
-  border-radius: 5px 0 0 5px;
-  -moz-border-radius: 5px 0 0 5px;
-  -webkit-border-radius: 5px 0 0 5px;
+  border-radius: 2px 0 0 2px;
 }
 
 #mode-toggle.player-selected button.player,
 #mode-toggle.cluegiver-selected button.cluegiver {
   cursor: auto;
-  color: #999;
+  background: var(--olive);
+  color: var(--paper);
+  border-color: var(--olive);
 }
 
 #next-game-btn {
-  margin-left: 10px;
+  margin-left: 0.6em;
+  border-color: var(--brick) !important;
+  color: var(--brick) !important;
+  background: transparent !important;
 }
 
 .cell {
@@ -117,8 +173,28 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  width: 18%;
-  height: 17%;
+  width: calc((100% - 4 * 0.7em) / 5);
+  height: calc((100% - 4 * 0.7em) / 5);
+  background: var(--paper-2);
+  border: 1px solid var(--ink);
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.18);
+  font-family: var(--mono);
+  font-size: 0.85em;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink);
+  transition: transform 0.12s ease;
+}
+
+.cell:nth-child(3n + 1) {
+  transform: rotate(-0.6deg);
+}
+.cell:nth-child(3n + 2) {
+  transform: rotate(0.5deg);
+}
+.cell.hidden-word:hover {
+  transform: translateY(-2px);
 }
 
 .cell.disabled {
@@ -128,15 +204,18 @@
 .board {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
   height: 500px;
+  gap: 0.7em;
 }
 
 .board .hidden-word {
   cursor: pointer;
 }
 .board .neutral.revealed {
-  background: #ede2cc;
+  background: var(--paper);
+  opacity: 0.6;
+  text-decoration: line-through;
+  box-shadow: none;
 }
 
 .cell .word {
@@ -144,47 +223,53 @@
   display: inline-block;
 }
 
-.cell {
-  background: #e8e8e8;
-}
-
 .cluegiver .red.hidden-word {
-  color: #d13030;
+  color: var(--brick);
 }
 .cluegiver .blue.hidden-word {
-  color: #4183cc;
+  color: var(--navy);
 }
 .cluegiver .black.hidden-word {
-  background: #999;
-  outline: 4px solid #000000;
+  background: var(--redacted);
+  color: var(--redacted);
+  outline: 3px solid var(--brick);
 }
 .cluegiver .cell {
-  font-weight: bold;
+  font-weight: 700;
 }
 
 .board .red.revealed {
-  background: #d13030;
-  color: #fff;
+  background: var(--brick);
+  color: var(--paper);
+  border-color: var(--brick);
+  box-shadow: none;
 }
 .board .blue.revealed {
-  background: #4183cc;
-  color: #fff;
+  background: var(--navy);
+  color: var(--paper);
+  border-color: var(--navy);
+  box-shadow: none;
 }
 .board .black.revealed {
-  background: #000000;
-  color: #fff;
+  background: var(--redacted);
+  color: var(--paper);
+  border-color: var(--redacted);
+  box-shadow: none;
 }
 .player .board.win > .cell.red.hidden-word {
-  background: rgba(209, 48, 48, 0.4);
+  background: color-mix(in srgb, var(--brick) 40%, var(--paper-2));
 }
 .player .board.win > .cell.blue.hidden-word {
-  background: rgba(65, 131, 204, 0.4);
+  background: color-mix(in srgb, var(--navy) 40%, var(--paper-2));
 }
 .player .board.win > .cell.black.hidden-word {
-  background: rgba(153, 153, 153, 0.4);
+  background: color-mix(in srgb, var(--redacted) 40%, var(--paper-2));
+  color: var(--redacted);
+  outline: none;
 }
-.dark-mode .cluegiver .board.win > .cell.neutral {
-  color: #aaa;
+.cluegiver .board.win > .cell.neutral {
+  color: var(--ink);
+  opacity: 0.6;
 }
 
 #remaining span {
@@ -198,24 +283,24 @@
 
 .color-blind .blue-remaining,
 .color-blind #status-line.blue #status {
-  border: 4px solid #4183cc;
+  border: 3px solid var(--navy);
 }
 
 .color-blind .red-remaining,
 .color-blind #status-line.red #status {
-  border: 4px dashed #d13030;
+  border: 3px dashed var(--brick);
 }
 
 .color-blind.cluegiver .red.hidden-word,
 .color-blind .red.revealed {
-  outline: 4px dashed #d13030;
-  border: 1px solid white;
+  outline: 3px dashed var(--brick);
+  border: 1px solid var(--paper);
 }
 
 .color-blind.cluegiver .blue.hidden-word,
 .color-blind .blue.revealed {
-  outline: 4px solid #4183cc;
-  border: 1px solid white;
+  outline: 3px solid var(--navy);
+  border: 1px solid var(--paper);
 }
 
 .color-blind .revealed .word {
@@ -223,45 +308,10 @@
 }
 
 .dark-mode {
-  background: rgb(33, 33, 33);
+  background: var(--paper);
 }
 .dark-mode h1 {
-  color: #ccc;
-}
-.dark-mode .cell {
-  background: rgb(117, 117, 117);
-}
-.dark-mode .cluegiver .blue {
-  color: rgb(13, 64, 123);
-}
-.dark-mode .cluegiver .red {
-  color: rgb(140, 15, 15);
-}
-.dark-mode .cluegiver .blue.revealed,
-.dark-mode .cluegiver .red.revealed {
-  color: #fff;
-}
-.dark-mode .cluegiver .black.hidden-word {
-  background: #444;
-  outline: 4px solid #000000;
-}
-
-.dark-mode #end-turn-btn,
-.dark-mode #mode-toggle button {
-  background: #444;
-  border: 1px #999 solid;
-  color: #bbb;
-}
-.dark-mode #mode-toggle button.gear {
-  background-color: transparent;
-  border: none;
-  color: #444;
-}
-.dark-mode #remaining {
-  color: #eee;
-}
-.dark-mode #timer {
-  color: #eee;
+  color: var(--ink);
 }
 
 #game-view.full-screen {
@@ -292,11 +342,15 @@
   top: 0;
   bottom: 0;
   right: 0;
-  background-color: white;
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
 }
 
 .settings h2 {
   text-align: center;
+  font-family: var(--mono);
+  text-transform: uppercase;
 }
 
 .close-settings {
@@ -304,6 +358,9 @@
   top: 32px;
   right: 32px;
   cursor: pointer;
+}
+.close-settings path {
+  stroke: var(--ink);
 }
 
 .settings-content {
@@ -327,32 +384,35 @@
 
 .toggle-set .settings-desc {
   font-size: 0.8em;
-  color: #555;
+  color: var(--ink);
+  opacity: 0.65;
 }
 
 .toggle {
   display: flex;
   height: 32px;
   width: 50px;
-  border-radius: 16px;
-  background-color: #eee;
+  border-radius: 2px;
+  background-color: var(--paper-2);
+  border: 1px solid var(--ink);
   cursor: pointer;
 }
 
 .switch {
-  height: 32px;
-  width: 32px;
-  border-radius: 16px;
+  height: 30px;
+  width: 30px;
+  border-radius: 1px;
   box-sizing: border-box;
-  border: 1px solid #bbb;
-  background-color: white;
+  border: 1px solid var(--ink);
+  background-color: var(--paper);
 }
 
 .toggle.active {
-  background-color: #e1f4d0;
+  background-color: var(--olive);
   justify-content: flex-end;
 }
 
 .toggle-state {
   font-weight: bold;
+  font-family: var(--mono);
 }

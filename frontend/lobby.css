@@ -1,7 +1,34 @@
+/* Field Dossier theme tokens. Also declared in game.css so each
+   stylesheet is self-contained regardless of load order. */
+:root {
+  --paper: #e9e2cc;
+  --paper-2: #ded5b8;
+  --ink: #211f18;
+  --navy: #1f3a4d;
+  --brick: #8c2f26;
+  --olive: #6b6b3a;
+  --redacted: #171512;
+  --line: rgba(33, 31, 24, 0.35);
+  --mono: ui-monospace, 'SFMono-Regular', 'Courier New', monospace;
+  --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+}
+.dark-mode {
+  --paper: #17150f;
+  --paper-2: #24211a;
+  --ink: #e7dfc8;
+  --navy: #7fb3cf;
+  --brick: #d9836f;
+  --olive: #b8b071;
+  --redacted: #0b0a08;
+  --line: rgba(231, 223, 200, 0.3);
+}
+
 html,
 body {
   margin: 0;
-  font-family: 'Roboto', verdana, sans-serif;
+  font-family: var(--serif);
+  background: var(--paper);
+  color: var(--ink);
 }
 
 #topbar {
@@ -9,25 +36,27 @@ body {
 }
 
 #topbar a {
-  color: black;
+  color: var(--ink);
   text-decoration: none;
 }
-
-.dark-mode #topbar a {
-  color: #888;
+#topbar a::before {
+  content: '\25C8  ';
+  color: var(--brick);
 }
 
 h1 {
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.28em;
   text-align: center;
-  font-family: 'Courier New', monospace;
+  font-family: var(--mono);
+  border-bottom: 1px dashed var(--line);
+  padding-bottom: 0.5em;
 }
 
 h1,
 h2,
 h3 {
-  font-family: 'Courier New', monospace;
+  font-family: var(--mono);
 }
 
 h2 {
@@ -35,11 +64,11 @@ h2 {
 }
 
 p.intro {
-  line-height: 1.5em;
+  line-height: 1.65;
   margin-bottom: 3em;
   text-align: justify;
-  font-family: verdana;
-  font-size: 0.9em;
+  font-family: var(--serif);
+  font-size: 0.98em;
 }
 
 #available-games {
@@ -62,7 +91,10 @@ p.intro {
   width: 350px;
   padding: 5px 10px;
   font-size: 1.3em;
-  border: 1px #ddd solid;
+  font-family: var(--mono);
+  background: var(--paper-2);
+  color: var(--ink);
+  border: 1px solid var(--ink);
   border-right: none;
   letter-spacing: 0.1em;
 }
@@ -71,11 +103,22 @@ p.intro {
   height: 62px;
   width: 120px;
   padding: 5px 10px;
-  background: #e1f4d0;
-  border: 1px #ddd solid;
+  background: var(--navy);
+  color: var(--paper);
+  border: 1px solid var(--ink);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700;
   font-size: 1em;
   vertical-align: top;
   cursor: pointer;
+}
+#new-game button:disabled {
+  background: var(--paper-2);
+  color: var(--ink);
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 #new-game-options {
@@ -96,7 +139,7 @@ p.intro {
   cursor: pointer;
   display: flex;
   flex-wrap: nowrap;
-  border-top: 1px #ddd solid;
+  border-top: 1px dashed var(--line);
   margin-top: 0.5em;
   padding-top: 0.5em;
 }
@@ -109,9 +152,11 @@ p.intro {
   width: 100%;
   height: 25em;
   margin: 0.5em 0;
-  font-size: 0.6em;
-  border: 1px #ddd solid;
-  font-family: 'verdana', sans-serif;
+  font-size: 0.7em;
+  background: var(--paper-2);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  font-family: var(--mono);
   line-height: 2em;
   text-transform: uppercase;
 }
@@ -120,29 +165,35 @@ p.intro {
   margin-top: 1em;
 }
 #wordsets .instruction {
-  font-size: 0.8em;
-  font-family: verdana;
-  color: #666;
+  font-size: 0.85em;
+  font-family: var(--serif);
+  color: var(--ink);
+  opacity: 0.7;
 }
 
 .btn-wordsettoggle {
   cursor: pointer;
-  border-radius: 0.25em;
-  border: 1px #bbb solid;
+  border-radius: 2px;
+  border: 1px solid var(--ink);
+  background: var(--paper-2);
+  color: var(--ink);
   padding: 0.5em;
   display: inline-block;
   margin: 0.25em;
-  font-family: 'verdana', sans-serif;
+  font-family: var(--mono);
   font-size: 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   user-select: none;
 }
 .btn-wordsettoggle:hover {
-  border: 1px #999 solid;
+  border-color: var(--brick);
 }
 
 #wordsets .selected {
-  background: #e1f4d0;
-  border: 1px #a0c12a solid;
+  background: var(--olive);
+  border-color: var(--olive);
+  color: var(--paper);
 }
 
 .btn-custom-word-set .symbol {
@@ -150,13 +201,13 @@ p.intro {
   display: inline-block;
 }
 .warning {
-  color: #d13030;
+  color: var(--brick);
   margin-top: 1em;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--serif);
   font-size: 0.9em;
 }
 .btn-custom-word-set:hover .label {
-  color: #333;
+  color: var(--brick);
 }
 
 .dropdown-label {
@@ -167,19 +218,22 @@ p.intro {
   width: 500px;
   margin: 0 auto 3em auto;
   font-size: 0.9em;
-  border-radius: 0.5em;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
   padding: 1em;
-  background: #e1f4d0;
+  background: var(--paper-2);
+  color: var(--ink);
+  font-family: var(--serif);
 }
 
 #banner a {
-  color: #000;
+  color: var(--brick);
   font-weight: bold;
 }
 
 #timer-settings {
   margin: 2em 0 2em 0;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--serif);
 }
 #timer-settings .toggle-set {
   margin-left: 0;
@@ -193,8 +247,8 @@ p.intro {
 }
 
 #timer-duration {
-  font-family: verdana;
-  font-size: 0.9em;
+  font-family: var(--mono);
+  font-size: 0.85em;
   line-height: 1.5em;
   padding: 0 1em;
   display: flex;
@@ -212,6 +266,10 @@ p.intro {
   margin-right: 0.6em;
 }
 #timer-duration input {
+  font-family: inherit;
   font-size: 1.3em;
   max-width: 50px;
+  background: var(--paper-2);
+  color: var(--ink);
+  border: 1px solid var(--ink);
 }
