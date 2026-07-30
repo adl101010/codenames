@@ -164,8 +164,6 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  width: calc((100% - 4 * 0.7em) / 5);
-  height: calc((100% - 4 * 0.7em) / 5);
   background: var(--paper-2);
   border: 1px solid var(--ink);
   box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.18);
@@ -193,10 +191,11 @@
 }
 
 .board {
-  display: flex;
-  flex-wrap: wrap;
-  height: 500px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
   gap: 0.7em;
+  height: 500px;
 }
 
 .board .hidden-word {
@@ -215,19 +214,23 @@
 }
 
 .cluegiver .red.hidden-word {
+  background: color-mix(in srgb, var(--brick) 20%, var(--paper-2));
   color: var(--brick);
+  border-color: var(--brick);
 }
 .cluegiver .blue.hidden-word {
+  background: color-mix(in srgb, var(--navy) 20%, var(--paper-2));
   color: var(--navy);
+  border-color: var(--navy);
 }
 .cluegiver .black.hidden-word {
   background: repeating-linear-gradient(
     135deg,
     var(--redacted) 0 10px,
-    #2a1210 10px 20px
+    #322d24 10px 20px
   );
   color: var(--paper);
-  outline: 3px solid var(--brick);
+  outline: 2px solid var(--paper);
 }
 .cluegiver .cell {
   font-weight: 700;
@@ -249,10 +252,10 @@
   background: repeating-linear-gradient(
     135deg,
     var(--redacted) 0 10px,
-    #2a1210 10px 20px
+    #322d24 10px 20px
   );
   color: var(--paper);
-  border-color: var(--brick);
+  border-color: var(--ink);
   box-shadow: none;
 }
 .board .black.revealed .word::before {
