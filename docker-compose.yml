@@ -1,6 +1,6 @@
 services:
   codenames:
-    build: .
+    image: ghcr.io/adl101010/codenames:latest
     container_name: codenames
     restart: unless-stopped
     ports:
