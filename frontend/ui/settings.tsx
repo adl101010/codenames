@@ -7,11 +7,6 @@ const settingToggles = [
     setting: 'fullscreen',
     desc: 'Enlarge the board to take up the whole page.',
   },
-  {
-    name: 'Clue giver may guess',
-    setting: 'cluegiverMayGuess',
-    desc: 'When enabled, clicking a word from clue giver view reveals the word.',
-  },
 ];
 
 export class Settings {

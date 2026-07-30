@@ -88,8 +88,8 @@ export class Game extends React.Component {
 
   // Determines value of aria-disabled attribute to tell screen readers if word can be clicked.
   private cellDisabled(idx) {
-    if (this.state.cluegiver && !this.state.settings.cluegiverMayGuess) {
-      return true;
+    if (!this.state.cluegiver) {
+      return true; // only the clue giver may select cards
     } else if (this.state.game.revealed[idx]) {
       return true;
     } else if (this.state.game.winning_team) {
@@ -153,8 +153,8 @@ export class Game extends React.Component {
 
   public guess(e, idx) {
     e.preventDefault();
-    if (this.state.cluegiver && !this.state.settings.cluegiverMayGuess) {
-      return; // ignore if player is the cluegiver
+    if (!this.state.cluegiver) {
+      return; // only the clue giver may select cards
     }
     if (this.state.game.revealed[idx]) {
       return; // ignore if already revealed
@@ -272,7 +272,7 @@ export class Game extends React.Component {
     }
 
     let endTurnButton;
-    if (!this.state.game.winning_team && !this.state.cluegiver) {
+    if (!this.state.game.winning_team && this.state.cluegiver) {
       endTurnButton = (
         <div id="end-turn-cont">
           <button
@@ -284,11 +284,6 @@ export class Game extends React.Component {
           </button>
         </div>
       );
-    }
-
-    let otherTeam = 'blue';
-    if (this.state.game.starting_team == 'blue') {
-      otherTeam = 'red';
     }
 
     let shareLink = null;
@@ -332,17 +327,17 @@ export class Game extends React.Component {
           <div
             id="remaining"
             role="img"
-            aria-label={this.getScoreAriaLabel(
-              this.state.game.starting_team,
-              otherTeam
-            )}
+            aria-label={this.getScoreAriaLabel('red', 'blue')}
           >
-            <span className={this.state.game.starting_team + '-remaining'}>
-              {this.remaining(this.state.game.starting_team)}
+            <span className="team-tally red-tally">
+              <span className="team-dot" aria-hidden="true"></span>
+              <span className="team-label">Red</span>
+              <span className="team-count">{this.remaining('red')}</span>
             </span>
-            &nbsp;&ndash;&nbsp;
-            <span className={otherTeam + '-remaining'}>
-              {this.remaining(otherTeam)}
+            <span className="team-tally blue-tally">
+              <span className="team-dot" aria-hidden="true"></span>
+              <span className="team-label">Blue</span>
+              <span className="team-count">{this.remaining('blue')}</span>
             </span>
           </div>
           <div id="status" className="status-text">
@@ -358,9 +353,7 @@ export class Game extends React.Component {
                 'cell ' +
                 this.state.game.layout[idx] +
                 ' ' +
-                (this.state.cluegiver && !this.state.settings.cluegiverMayGuess
-                  ? 'disabled '
-                  : '') +
+                (!this.state.cluegiver ? 'disabled ' : '') +
                 (this.state.game.revealed[idx] ? 'revealed' : 'hidden-word')
               }
               onClick={(e) => this.guess(e, idx, w)}

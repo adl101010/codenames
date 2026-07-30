@@ -1,7 +1,7 @@
 /* Field Dossier theme tokens. Also declared in lobby.css so each
    stylesheet is self-contained regardless of load order. */
 :root {
-  --paper: #e9e2cc;
+  --paper: #d3c596;
   --paper-2: #ded5b8;
   --ink: #211f18;
   --navy: #1f3a4d;
@@ -73,13 +73,37 @@
 }
 
 #remaining {
-  width: 10em;
+  display: flex;
+  gap: 1.2em;
   font-weight: 700;
 }
-#remaining .red-remaining {
+.team-tally {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+}
+.team-dot {
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 50%;
+  display: inline-block;
+}
+.team-label {
+  font-size: 0.8em;
+  letter-spacing: 0.06em;
+}
+.red-tally .team-dot {
+  background: var(--brick);
+}
+.red-tally .team-label,
+.red-tally .team-count {
   color: var(--brick);
 }
-#remaining .blue-remaining {
+.blue-tally .team-dot {
+  background: var(--navy);
+}
+.blue-tally .team-label,
+.blue-tally .team-count {
   color: var(--navy);
 }
 
@@ -133,6 +157,10 @@
   background-color: transparent;
   margin: 2px 8px 0;
 }
+#mode-toggle button.gear svg path {
+  fill: var(--ink);
+  stroke: var(--ink);
+}
 
 #mode-toggle button.cluegiver {
   border-left: none;
@@ -182,7 +210,7 @@
 .cell:nth-child(3n + 2) {
   transform: rotate(0.5deg);
 }
-.cell.hidden-word:hover {
+.cell.hidden-word:not(.disabled):hover {
   transform: translateY(-2px);
 }
 
@@ -275,11 +303,6 @@
 .cluegiver .board.win > .cell.neutral {
   color: var(--ink);
   opacity: 0.6;
-}
-
-#remaining span {
-  display: inline-block;
-  padding: 3px 5px;
 }
 
 #game-view.full-screen {
