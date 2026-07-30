@@ -1,7 +1,7 @@
 /* Field Dossier theme tokens. Also declared in game.css so each
    stylesheet is self-contained regardless of load order. */
 :root {
-  --paper: #e9e2cc;
+  --paper: #c2b483;
   --paper-2: #ded5b8;
   --ink: #211f18;
   --navy: #1f3a4d;

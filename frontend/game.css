@@ -1,7 +1,7 @@
 /* Field Dossier theme tokens. Also declared in lobby.css so each
    stylesheet is self-contained regardless of load order. */
 :root {
-  --paper: #d3c596;
+  --paper: #c2b483;
   --paper-2: #ded5b8;
   --ink: #211f18;
   --navy: #1f3a4d;
@@ -241,14 +241,19 @@
   display: inline-block;
 }
 
+/* In clue-giver view, still-in-play cards get the bold, dark, full
+   team-color fill -- these are the live decision space and should
+   pop. Once a card is taken, it flips to a light wash of the same
+   color plus a checkmark, so it visually recedes as settled instead
+   of just reading as a more-saturated shade of the same tile. */
 .cluegiver .red.hidden-word {
-  background: color-mix(in srgb, var(--brick) 20%, var(--paper-2));
-  color: var(--brick);
+  background: var(--brick);
+  color: var(--paper);
   border-color: var(--brick);
 }
 .cluegiver .blue.hidden-word {
-  background: color-mix(in srgb, var(--navy) 20%, var(--paper-2));
-  color: var(--navy);
+  background: var(--navy);
+  color: var(--paper);
   border-color: var(--navy);
 }
 .cluegiver .black.hidden-word {
@@ -262,18 +267,6 @@
 }
 .cluegiver .cell {
   font-weight: 700;
-}
-
-/* In clue-giver view, hidden-word cells are already team-tinted for
-   strategy, so a revealed cell of the same team can otherwise look
-   like just a more-saturated version of the same color. Dim revealed
-   cells and mark them, so "already taken" reads as visually settled
-   against the still-vivid, still-in-play cells. */
-.cluegiver .cell.revealed {
-  opacity: 0.5;
-}
-.cluegiver .cell.revealed:not(.black) .word::after {
-  content: ' \2713';
 }
 
 .board .red.revealed {
@@ -301,6 +294,31 @@
 .board .black.revealed .word::before {
   content: '\2620  ';
 }
+
+/* Cluegiver-specific overrides win here because they come after the
+   .board rules above with equal selector specificity. */
+.cluegiver .red.revealed {
+  background: color-mix(in srgb, var(--brick) 22%, var(--paper-2));
+  color: var(--brick);
+  border-color: var(--brick);
+  box-shadow: none;
+}
+.cluegiver .blue.revealed {
+  background: color-mix(in srgb, var(--navy) 22%, var(--paper-2));
+  color: var(--navy);
+  border-color: var(--navy);
+  box-shadow: none;
+}
+.cluegiver .black.revealed {
+  background: color-mix(in srgb, var(--redacted) 25%, var(--paper-2));
+  color: var(--ink);
+  border-color: var(--ink);
+  box-shadow: none;
+}
+.cluegiver .cell.revealed:not(.black) .word::after {
+  content: ' \2713';
+}
+
 .player .board.win > .cell.red.hidden-word {
   background: color-mix(in srgb, var(--brick) 40%, var(--paper-2));
 }
