@@ -369,38 +369,32 @@ export class Game extends React.Component {
             </div>
           ))}
         </div>
-        <form
-          id="mode-toggle"
-          className={
-            this.state.cluegiver ? 'cluegiver-selected' : 'player-selected'
-          }
-          role="radiogroup"
-        >
+        <div id="mode-toggle">
           <SettingsButton
             onClick={(e) => {
               this.toggleSettingsView(e);
             }}
           />
           <button
-            onClick={(e) => this.toggleRole(e, 'player')}
-            className="player"
-            role="radio"
-            aria-checked={!this.state.cluegiver}
-          >
-            Player
-          </button>
-          <button
-            onClick={(e) => this.toggleRole(e, 'cluegiver')}
-            className="cluegiver"
-            role="radio"
+            type="button"
+            className={
+              'role-switch ' + (this.state.cluegiver ? 'cluegiver' : 'player')
+            }
+            role="switch"
             aria-checked={this.state.cluegiver}
+            aria-label="Switch between player and clue giver view"
+            onClick={(e) =>
+              this.toggleRole(e, this.state.cluegiver ? 'player' : 'cluegiver')
+            }
           >
-            Clue giver
+            <span className="switch-knob" aria-hidden="true"></span>
+            <span className="switch-label player-label">Player</span>
+            <span className="switch-label cluegiver-label">Clue giver</span>
           </button>
           <button onClick={(e) => this.nextGame(e)} id="next-game-btn">
             Next game
           </button>
-        </form>
+        </div>
       </div>
     );
   }
