@@ -64,12 +64,23 @@
 }
 .status-text {
   font-weight: 700;
+  padding: 0.3em 0.9em;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: var(--paper-2);
+  font-size: 1.15em;
 }
-.red-turn .status-text {
-  color: var(--brick);
+.red-turn .status-text,
+.red.win .status-text {
+  background: var(--brick);
+  color: var(--paper);
+  border-color: var(--brick);
 }
-.blue-turn .status-text {
-  color: var(--navy);
+.blue-turn .status-text,
+.blue.win .status-text {
+  background: var(--navy);
+  color: var(--paper);
+  border-color: var(--navy);
 }
 
 #remaining {
@@ -126,9 +137,9 @@
   cursor: pointer;
 }
 #end-turn-btn:hover {
-  background: var(--navy);
+  background: var(--ink);
   color: var(--paper);
-  border-color: var(--navy);
+  border-color: var(--ink);
 }
 
 #mode-toggle {
@@ -434,6 +445,12 @@
 
 #game-view.full-screen {
   width: 98vw;
+}
+/* #topbar is a sibling of #game-view, not an ancestor/descendant, so
+   this can't be a plain descendant selector off .full-screen -- :has()
+   reaches across to the shared ancestor instead. */
+#application:has(#game-view.full-screen) #topbar {
+  display: none;
 }
 .full-screen .board {
   height: 75vh;
