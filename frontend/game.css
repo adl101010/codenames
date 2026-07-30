@@ -282,15 +282,21 @@
   align-items: center;
   text-align: center;
   background-color: var(--paper-2);
+  /* One position per color stop -- see the note in lobby.css: the
+     double-position shorthand does not survive cssnano minification. */
   background-image: repeating-linear-gradient(
       0deg,
-      rgba(33, 31, 24, 0.12) 0 1px,
-      transparent 1px 4px
+      rgba(33, 31, 24, 0.12) 0px,
+      rgba(33, 31, 24, 0.12) 1px,
+      rgba(33, 31, 24, 0) 1px,
+      rgba(33, 31, 24, 0) 4px
     ),
     repeating-linear-gradient(
       90deg,
-      rgba(33, 31, 24, 0.1) 0 1px,
-      transparent 1px 4px
+      rgba(33, 31, 24, 0.1) 0px,
+      rgba(33, 31, 24, 0.1) 1px,
+      rgba(33, 31, 24, 0) 1px,
+      rgba(33, 31, 24, 0) 4px
     );
   border: 1px solid var(--ink);
   box-shadow: 1px 2px 0 rgba(0, 0, 0, 0.12), 3px 5px 0 rgba(0, 0, 0, 0.08),
@@ -357,10 +363,15 @@
   border-color: var(--navy);
 }
 .cluegiver .black.hidden-word {
+  /* Literal colors, one position per stop: var() inside a gradient is
+     another thing cssnano 4 handles poorly, and this needs to survive
+     minification. #171512 is --redacted. */
   background: repeating-linear-gradient(
     135deg,
-    var(--redacted) 0 10px,
-    #322d24 10px 20px
+    #171512 0px,
+    #171512 10px,
+    #322d24 10px,
+    #322d24 20px
   );
   color: var(--paper);
   outline: 2px solid var(--paper);
@@ -384,8 +395,10 @@
 .board .black.revealed {
   background: repeating-linear-gradient(
     135deg,
-    var(--redacted) 0 10px,
-    #322d24 10px 20px
+    #171512 0px,
+    #171512 10px,
+    #322d24 10px,
+    #322d24 20px
   );
   color: var(--paper);
   border-color: var(--ink);

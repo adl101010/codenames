@@ -19,21 +19,34 @@ body {
   font-family: var(--serif);
   color: var(--ink);
   background-color: var(--paper);
+  /* Color stops are written one position per stop. The shorter
+     double-position form (`<color> 0 1px`) is valid CSS but predates
+     cssnano 4, which mangles it during `parcel build` until the browser
+     drops the declaration -- so these gradients silently vanished in
+     production while looking fine in a raw browser. */
   background-image: radial-gradient(
       ellipse at 50% 0%,
       rgba(255, 255, 255, 0.1),
-      transparent 60%
+      rgba(255, 255, 255, 0) 60%
     ),
-    radial-gradient(ellipse at 50% 100%, rgba(23, 21, 18, 0.16), transparent 65%),
+    radial-gradient(
+      ellipse at 50% 100%,
+      rgba(23, 21, 18, 0.16),
+      rgba(23, 21, 18, 0) 65%
+    ),
     repeating-linear-gradient(
       0deg,
-      rgba(33, 31, 24, 0.1) 0 1px,
-      transparent 1px 4px
+      rgba(33, 31, 24, 0.1) 0px,
+      rgba(33, 31, 24, 0.1) 1px,
+      rgba(33, 31, 24, 0) 1px,
+      rgba(33, 31, 24, 0) 4px
     ),
     repeating-linear-gradient(
       90deg,
-      rgba(33, 31, 24, 0.08) 0 1px,
-      transparent 1px 4px
+      rgba(33, 31, 24, 0.08) 0px,
+      rgba(33, 31, 24, 0.08) 1px,
+      rgba(33, 31, 24, 0) 1px,
+      rgba(33, 31, 24, 0) 4px
     );
   background-attachment: fixed;
 }
