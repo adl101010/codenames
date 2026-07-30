@@ -15,13 +15,11 @@ const Toggle: React.FunctionalComponent<ToggleProps> = ({
     <div
       onClick={handleToggle}
       className={state ? 'toggle active' : 'toggle inactive'}
+      role="switch"
+      aria-label={name}
+      aria-checked={!!state}
     >
-      <div
-        className="switch"
-        role="button"
-        aria-label={name}
-        aria-pressed={!!state}
-      ></div>
+      <div className="switch" aria-hidden="true"></div>
     </div>
   );
 };

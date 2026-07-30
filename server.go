@@ -268,7 +268,20 @@ func (s *Server) handleNextGame(rw http.ResponseWriter, req *http.Request) {
 
 			previousGame := gh.g
 
-			nextState := nextGameState(gh.g.GameState)
+			// nextGameState carries the existing WordSet forward, so a
+			// game created with a different set (e.g. before the Mature
+			// setting was toggled off) would otherwise keep drawing from
+			// it forever. When the requested set differs, start a fresh
+			// permutation over the new one instead. Resetting PermIndex
+			// also matters for correctness, not just freshness: newGame
+			// slices perm[PermIndex : PermIndex+wordsPerGame], which
+			// would panic if a stale index outran a smaller word set.
+			var nextState GameState
+			if len(wordSet) > 0 && !sameWordSet(gh.g.WordSet, words) {
+				nextState = randomState(words)
+			} else {
+				nextState = nextGameState(gh.g.GameState)
+			}
 			gh = newHandle(newGame(request.GameID, nextState, opts), s.Store)
 			s.games[request.GameID] = gh
 
@@ -286,6 +299,22 @@ func (s *Server) handleNextGame(rw http.ResponseWriter, req *http.Request) {
 		}
 	}()
 	writeGame(rw, gh)
+}
+
+// sameWordSet reports whether two word sets are identical. Both are
+// sorted at the point they're built, so an element-wise compare is
+// enough; an unsorted input would only ever cause a false "differs",
+// which just reshuffles rather than misbehaving.
+func sameWordSet(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 type statsResponse struct {

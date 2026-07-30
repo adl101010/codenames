@@ -530,28 +530,43 @@
   opacity: 0.65;
 }
 
+/* On/off slider, built to match the player/clue-giver .role-switch:
+   pill track with a brass knob that slides. The knob is absolutely
+   positioned with symmetric 3px insets, so it stays centered in the
+   track -- the previous version sized a 30px knob inside a 32px
+   content-box track and left 2px of slack at the bottom. */
 .toggle {
-  display: flex;
-  height: 32px;
-  width: 50px;
-  border-radius: 2px;
+  position: relative;
+  box-sizing: border-box;
+  flex: none;
+  width: 4.4em;
+  height: 2em;
+  border-radius: 999px;
   background-color: var(--paper-2);
   border: 1px solid var(--ink);
   cursor: pointer;
+  transition: background-color 0.18s ease;
 }
 
 .switch {
-  height: 30px;
-  width: 30px;
-  border-radius: 1px;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  height: calc(100% - 6px);
   box-sizing: border-box;
-  border: 1px solid var(--ink);
-  background-color: var(--paper);
+  border: 1px solid #3f3a20;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #8a7a48, var(--olive) 60%, #55502c);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: left 0.18s ease;
 }
 
 .toggle.active {
-  background-color: var(--olive);
-  justify-content: flex-end;
+  background-color: #aaa57f;
+}
+.toggle.active .switch {
+  left: calc(50% + 0px);
 }
 
 .toggle-state {
