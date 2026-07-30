@@ -276,7 +276,6 @@
 }
 
 .cell {
-  position: relative;
   box-sizing: border-box;
   display: flex;
   justify-content: center;
@@ -294,7 +293,8 @@
       transparent 1px 3px
     );
   border: 1px solid var(--ink);
-  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.18);
+  box-shadow: 1px 2px 0 rgba(0, 0, 0, 0.12), 3px 5px 0 rgba(0, 0, 0, 0.08),
+    2px 4px 8px rgba(0, 0, 0, 0.28);
   font-family: var(--mono);
   font-size: 0.85em;
   letter-spacing: 0.02em;
@@ -302,25 +302,6 @@
   font-weight: 600;
   color: var(--ink);
   transition: transform 0.12s ease;
-}
-.cell::after {
-  /* dog-ear fold, bottom-right corner -- a shadow-only gradient rather
-     than a hard color swap, so it reads correctly on any fill (plain
-     paper, solid team color, or the black tile's hazard stripe). */
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 12px;
-  height: 12px;
-  background: linear-gradient(
-    225deg,
-    rgba(0, 0, 0, 0.32) 0%,
-    rgba(0, 0, 0, 0.08) 55%,
-    transparent 65%
-  );
-  clip-path: polygon(100% 100%, 0 100%, 100% 0);
-  pointer-events: none;
 }
 
 .cell:nth-child(3n + 1) {
