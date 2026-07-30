@@ -17,8 +17,25 @@ html,
 body {
   margin: 0;
   font-family: var(--serif);
-  background: var(--paper);
   color: var(--ink);
+  background-color: var(--paper);
+  background-image: radial-gradient(
+      ellipse at 50% 0%,
+      rgba(255, 255, 255, 0.1),
+      transparent 60%
+    ),
+    radial-gradient(ellipse at 50% 100%, rgba(23, 21, 18, 0.16), transparent 65%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(33, 31, 24, 0.035) 0 1px,
+      transparent 1px 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(33, 31, 24, 0.028) 0 1px,
+      transparent 1px 3px
+    );
+  background-attachment: fixed;
 }
 
 #topbar {
