@@ -1,0 +1,15 @@
+services:
+  codenames:
+    build: .
+    container_name: codenames
+    restart: unless-stopped
+    ports:
+      - "9091:9091"
+    environment:
+      # Where the embedded Pebble DB persists games. Must match the volume mount below.
+      - PEBBLE_DIR=/app/db
+    volumes:
+      - codenames_data:/app/db
+
+volumes:
+  codenames_data:
