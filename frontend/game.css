@@ -209,9 +209,68 @@
 
 #next-game-btn {
   margin-left: 0.6em;
+  background: var(--brick) !important;
+  color: var(--paper) !important;
   border-color: var(--brick) !important;
-  color: var(--brick) !important;
-  background: transparent !important;
+  font-weight: 700;
+  box-shadow: 1px 2px 0 rgba(0, 0, 0, 0.25);
+}
+#next-game-btn::before {
+  content: '\21BB ';
+}
+#next-game-btn:hover {
+  background: var(--redacted) !important;
+  border-color: var(--redacted) !important;
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 21, 18, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+.confirm-dialog {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  box-shadow: 4px 6px 0 rgba(0, 0, 0, 0.35);
+  padding: 1.6em 1.8em;
+  max-width: 320px;
+  text-align: center;
+  font-family: var(--serif);
+  color: var(--ink);
+}
+.confirm-message {
+  margin: 0 0 1.2em;
+  line-height: 1.5;
+  font-size: 0.95em;
+}
+.confirm-actions {
+  display: flex;
+  gap: 0.6em;
+  justify-content: center;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.78em;
+}
+.confirm-actions button {
+  padding: 0.6em 1.1em;
+  border: 1px solid var(--ink);
+  background: var(--paper-2);
+  color: var(--ink);
+  cursor: pointer;
+}
+.confirm-actions button.confirm-yes {
+  background: var(--brick);
+  color: var(--paper);
+  border-color: var(--brick);
+}
+.confirm-actions button.confirm-yes:hover {
+  background: var(--redacted);
+  border-color: var(--redacted);
 }
 
 .cell {

@@ -18,6 +18,7 @@ export class Game extends React.Component {
       settings: Settings.load(),
       mode: 'game',
       cluegiver: false,
+      confirmNextGame: false,
     };
   }
 
@@ -206,14 +207,18 @@ export class Game extends React.Component {
 
   public nextGame(e) {
     e.preventDefault();
-    // Ask for confirmation when current game hasn't finished
-    let allowNextGame =
-      this.state.game.winning_team ||
-      confirm('Do you really want to start a new game?');
-    if (!allowNextGame) {
-      return;
-    }
+    this.setState({ confirmNextGame: true });
+  }
 
+  public cancelNextGame(e) {
+    if (e != null) {
+      e.preventDefault();
+    }
+    this.setState({ confirmNextGame: false });
+  }
+
+  public startNextGame(e) {
+    e.preventDefault();
     axios
       .post('/next-game', {
         game_id: this.state.game.id,
@@ -223,7 +228,7 @@ export class Game extends React.Component {
         enforce_timer: this.state.game.enforce_timer,
       })
       .then(({ data }) => {
-        this.setState({ game: data, cluegiver: false });
+        this.setState({ game: data, cluegiver: false, confirmNextGame: false });
       });
   }
 
@@ -395,6 +400,24 @@ export class Game extends React.Component {
             Next game
           </button>
         </div>
+        {this.state.confirmNextGame && (
+          <div className="confirm-overlay">
+            <div className="confirm-dialog">
+              <p className="confirm-message">
+                Start a new game? This resets the board for everyone.
+              </p>
+              <div className="confirm-actions">
+                <button onClick={(e) => this.cancelNextGame(e)}>Cancel</button>
+                <button
+                  className="confirm-yes"
+                  onClick={(e) => this.startNextGame(e)}
+                >
+                  New game
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
