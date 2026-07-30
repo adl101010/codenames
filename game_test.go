@@ -1,4 +1,4 @@
-package horsepaste
+package codenames
 
 import (
 	"encoding/json"

@@ -1,19 +1,15 @@
-# horsepaste
+# Codenames
 
-[![GoDoc](https://godoc.org/github.com/jbowens/horsepaste?status.svg)](https://godoc.org/github.com/jbowens/horsepaste)
+Codenames is a word-guessing game. Generated boards are shareable and sync. The board can be viewed either as a clue giver or a word guesser.
 
-Horsepaste is a word-guessing game. Generated boards are shareable and sync. The board can be viewed either as a clue giver or a word guesser.
-
-A hosted version of the app is available at [www.horsepaste.com](https://www.horsepaste.com).
-
-![Clue giver view of board](https://raw.githubusercontent.com/jbowens/horsepaste/master/screenshot.png)
+![Clue giver view of board](screenshot.png)
 
 ## Building
 
 The app requires a [Go](https://golang.org/) toolchain, node.js and [parcel](https://parceljs.org/) to build. Once you have those setup, build the application Go binary with:
 
 ```
-go install github.com/jbowens/horsepaste/cmd/horsepaste
+go install github.com/adl101010/codenames/cmd/codenames
 ```
 
 Then from the frontend directory, install the node modules:
@@ -39,17 +35,19 @@ npm run build
 Alternatively, the repository includes a Dockerfile for building a docker image of this app.
 
 ```
-docker build . -t horsepaste:latest
+docker build . -t codenames:latest
 ```
 
 The following command will launch the docker image:
 
 ```
-docker run --name horsepaste_server --rm -p 9091:9091 -d horsepaste
+docker run --name codenames_server --rm -p 9091:9091 -d codenames
 ```
 
 The following command will kill the docker instance:
 
 ```
-docker stop horsepaste_server
+docker stop codenames_server
 ```
+
+A prebuilt image is also published to GHCR on every push to `master` (see `.github/workflows/docker-ghcr.yml`); `docker-compose.yml` pulls `ghcr.io/adl101010/codenames:latest` directly, no local build required.

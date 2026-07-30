@@ -1,4 +1,4 @@
-module github.com/jbowens/horsepaste
+module github.com/adl101010/codenames
 
 go 1.13
 

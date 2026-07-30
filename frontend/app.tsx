@@ -29,7 +29,7 @@ export class App extends React.Component {
       <div id="application">
         <div id="topbar">
           <h1>
-            <a href={'http://' + window.location.host}>Horsepaste</a>
+            <a href={'http://' + window.location.host}>Codenames</a>
           </h1>
         </div>
         {pane}

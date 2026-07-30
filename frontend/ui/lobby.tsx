@@ -76,7 +76,7 @@ export const Lobby = ({ defaultGameID }) => {
       <div id="available-games">
         <form id="new-game">
           <p className="intro">
-            Play horsepaste online across multiple devices on a shared board. To
+            Play Codenames online across multiple devices on a shared board. To
             create a new game or join an existing game, enter a game identifier
             and click 'GO'.
           </p>

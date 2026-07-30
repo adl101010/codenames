@@ -425,9 +425,6 @@ export class Game extends React.Component {
             Next game
           </button>
         </form>
-        <div id="coffee">
-          Fuck ICE, Trump, and all fascist enablers. ✊
-        </div>
       </div>
     );
   }
