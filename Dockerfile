@@ -10,10 +10,12 @@ FROM node:12-alpine as frontend
 COPY . /app
 WORKDIR /app/frontend
 # python2/make/g++ let node-gyp compile native deps (e.g. deasync) from source on
-# platforms without a prebuilt binary, such as arm64.
+# platforms without a prebuilt binary, such as arm64. --unsafe-perm stops npm from
+# dropping these root-run install scripts to the "nobody" user, which otherwise
+# can't write to the global node_modules dir or node-gyp's build cache.
 RUN apk add --no-cache python2 make g++ \
-    && npm install -g parcel-bundler \
-    && npm install \
+    && npm install -g --unsafe-perm parcel-bundler \
+    && npm install --unsafe-perm \
     && sh build.sh
 
 # Copy build artifacts from previous build stages (to remove files not necessary for
