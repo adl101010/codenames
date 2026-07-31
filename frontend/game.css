@@ -470,6 +470,12 @@
   background: none;
   border: none;
   box-shadow: none;
+  /* The legacy .board .red/.blue/.black.revealed rules above still
+     match this element (it keeps their color/team classes) and set
+     color, which -- since color inherits -- was cascading straight
+     into the (deliberately colorless) face elements once revealed.
+     Reset it back to the base cell color so nothing leaks through. */
+  color: var(--ink);
   perspective: 500px;
 }
 .cell.flip .face-wrap {
@@ -530,9 +536,12 @@
   content: '\2620  ';
 }
 .cell.flip.neutral .face.front {
+  /* No opacity here: .board .neutral.revealed above already puts
+     opacity: 0.6 on the outer cell, and opacity compounds between
+     parent and child (0.6 x 0.6 = 0.36) rather than the later one
+     simply winning, so setting it again here would double-fade it. */
   background-color: var(--paper);
   color: var(--ink);
-  opacity: 0.6;
   text-decoration: line-through;
 }
 
