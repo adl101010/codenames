@@ -20,6 +20,12 @@ export class Game extends React.Component {
       mode: 'game',
       cluegiver: false,
       confirmNextGame: false,
+      // Maps a board index to which reveal animation it should play in
+      // player view: 'flip-a' for a normal reveal, 'flip-ab' for the
+      // black card or the card that ends the game. Populated once, the
+      // instant a card is detected transitioning from hidden to
+      // revealed -- see computeRevealAnimationUpdates.
+      revealAnimations: {},
     };
   }
 
@@ -51,6 +57,35 @@ export class Game extends React.Component {
 
   public componentDidUpdate(prevProps, prevState) {
     this.setTurnIndicatorFavicon(prevProps, prevState);
+  }
+
+  // Diffs an old and new game to find cards that just flipped from hidden
+  // to revealed -- whether from this browser's own click or picked up from
+  // another device on the next poll -- and returns which reveal animation
+  // each one should play, or null if nothing new was revealed.
+  //
+  // Must be called from inside the same setState updater that applies the
+  // new game data (see guess() and refresh()), using the updater's own
+  // "old" argument as prevGame -- not a separate componentDidUpdate pass.
+  // That would diff against state from a render that already happened,
+  // landing revealAnimations one tick behind game.revealed: the cell would
+  // render revealed-but-unclassified first (falling back to a plain
+  // flip-a), and only upgrade to flip-ab a render later, after the plain
+  // flip had already started playing.
+  private computeRevealAnimationUpdates(oldGame, newGame) {
+    if (!oldGame || !newGame || !newGame.revealed || !oldGame.revealed) {
+      return null; // nothing to diff against yet (e.g. first load)
+    }
+    const causedWin = !oldGame.winning_team && !!newGame.winning_team;
+    let updates = null;
+    for (let idx = 0; idx < newGame.revealed.length; idx++) {
+      if (newGame.revealed[idx] && !oldGame.revealed[idx]) {
+        const isDramatic = newGame.layout[idx] === 'black' || causedWin;
+        updates = updates || {};
+        updates[idx] = isDramatic ? 'flip-ab' : 'flip-a';
+      }
+    }
+    return updates;
   }
 
   private setTurnIndicatorFavicon(prevProps, prevState) {
@@ -136,7 +171,21 @@ export class Game extends React.Component {
         this.setState((oldState) => {
           const stateToUpdate = { game: data };
           if (oldState.game && data.created_at != oldState.game.created_at) {
+            // A new round -- possibly started from another device -- so
+            // there's nothing left worth keeping from the last one.
             stateToUpdate.cluegiver = false;
+            stateToUpdate.revealAnimations = {};
+          } else {
+            const updates = this.computeRevealAnimationUpdates(
+              oldState.game,
+              data
+            );
+            if (updates) {
+              stateToUpdate.revealAnimations = {
+                ...oldState.revealAnimations,
+                ...updates,
+              };
+            }
           }
           return stateToUpdate;
         });
@@ -171,7 +220,20 @@ export class Game extends React.Component {
         index: idx,
       })
       .then(({ data }) => {
-        this.setState({ game: data });
+        this.setState((oldState) => {
+          const stateToUpdate = { game: data };
+          const updates = this.computeRevealAnimationUpdates(
+            oldState.game,
+            data
+          );
+          if (updates) {
+            stateToUpdate.revealAnimations = {
+              ...oldState.revealAnimations,
+              ...updates,
+            };
+          }
+          return stateToUpdate;
+        });
       });
   }
 
@@ -232,7 +294,12 @@ export class Game extends React.Component {
         enforce_timer: this.state.game.enforce_timer,
       })
       .then(({ data }) => {
-        this.setState({ game: data, cluegiver: false, confirmNextGame: false });
+        this.setState({
+          game: data,
+          cluegiver: false,
+          confirmNextGame: false,
+          revealAnimations: {},
+        });
       });
   }
 
@@ -355,18 +422,16 @@ export class Game extends React.Component {
           {endTurnButton}
         </div>
         <div className={'board ' + statusClass}>
-          {this.state.game.words.map((w, idx) => (
-            <div
-              key={idx}
-              className={
-                'cell ' +
-                this.state.game.layout[idx] +
-                ' ' +
-                (!this.state.cluegiver ? 'disabled ' : '') +
-                (this.state.game.revealed[idx] ? 'revealed' : 'hidden-word')
-              }
-              onClick={(e) => this.guess(e, idx, w)}
-            >
+          {this.state.game.words.map((w, idx) => {
+            const revealed = this.state.game.revealed[idx];
+            const baseClassName =
+              'cell ' +
+              this.state.game.layout[idx] +
+              ' ' +
+              (!this.state.cluegiver ? 'disabled ' : '') +
+              (revealed ? 'revealed' : 'hidden-word');
+
+            const wordSpan = (
               <span
                 className="word"
                 role="button"
@@ -375,8 +440,48 @@ export class Game extends React.Component {
               >
                 {w}
               </span>
-            </div>
-          ))}
+            );
+
+            // Clue giver view is already team-tinted before a card is
+            // revealed (see game.css), so there's nothing to "discover" --
+            // keep it as a plain, instant swap. The animated flip is a
+            // player-view-only flourish, since players are the ones
+            // actually watching a card get chosen in real time.
+            if (this.state.cluegiver) {
+              return (
+                <div
+                  key={idx}
+                  className={baseClassName}
+                  onClick={(e) => this.guess(e, idx, w)}
+                >
+                  {wordSpan}
+                </div>
+              );
+            }
+
+            // "flip" is present whether or not the card is revealed yet --
+            // it's what tells the CSS to render this as a two-face card
+            // instead of the flat cluegiver look. "flip-a"/"flip-ab" plus
+            // "go" only apply once revealed, and pick + trigger the
+            // specific reveal animation.
+            const animClass = revealed
+              ? (this.state.revealAnimations[idx] || 'flip-a') + ' go'
+              : '';
+
+            return (
+              <div
+                key={idx}
+                className={baseClassName + ' flip ' + animClass}
+                onClick={(e) => this.guess(e, idx, w)}
+              >
+                <div className="face-wrap">
+                  <div className="face back"></div>
+                  <div className="face front">{wordSpan}</div>
+                </div>
+                <div className="flash" aria-hidden="true"></div>
+              </div>
+            );
+          })}
         </div>
         <div id="mode-toggle">
           <SettingsButton

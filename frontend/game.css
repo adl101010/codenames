@@ -446,20 +446,157 @@
   content: ' \2713';
 }
 
-.player .board.win > .cell.red.hidden-word {
-  background: color-mix(in srgb, var(--brick) 40%, var(--paper-2));
-}
-.player .board.win > .cell.blue.hidden-word {
-  background: color-mix(in srgb, var(--navy) 40%, var(--paper-2));
-}
-.player .board.win > .cell.black.hidden-word {
-  background: color-mix(in srgb, var(--redacted) 40%, var(--paper-2));
-  color: var(--ink);
-  outline: none;
-}
 .cluegiver .board.win > .cell.neutral {
   color: var(--ink);
   opacity: 0.6;
+}
+
+/* Player-view card flip. Clue-giver view keeps the flat, instant-swap
+   cells above -- it's already team-tinted before a reveal, so there's
+   nothing to "discover". This is what game.tsx renders instead for
+   player view: a .face-wrap with two faces, so the front face can hold
+   the card's final color from the start and the flip is pure CSS, no
+   JS timing needed to swap content mid-animation.
+
+   "flip" is present on every player-view cell, revealed or not, and
+   fully replaces the flat .cell look above (background/border/shadow
+   move onto the faces) so nothing shows through the gap mid-rotation
+   but the board behind it. "flip-a" / "flip-ab" (plus "go", added only
+   once revealed) pick which reveal animation plays: -a is a plain 3D
+   flip; -ab adds a punch-and-flash impact once it lands, used for the
+   black card and whichever card ends the game. */
+.player .cell.flip {
+  position: relative;
+  background: none;
+  border: none;
+  box-shadow: none;
+  perspective: 500px;
+}
+.cell.flip .face-wrap {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.48s cubic-bezier(0.4, 0.1, 0.2, 1);
+}
+.cell.flip.go .face-wrap {
+  transform: rotateY(180deg);
+}
+.cell.flip .face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  border: 1px solid var(--ink);
+  box-shadow: 1px 2px 0 rgba(0, 0, 0, 0.12), 3px 5px 0 rgba(0, 0, 0, 0.08),
+    2px 4px 8px rgba(0, 0, 0, 0.28);
+}
+.cell.flip .face.back {
+  background-color: var(--paper-2);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(33, 31, 24, 0.05) 0px,
+    rgba(33, 31, 24, 0.05) 2px,
+    rgba(33, 31, 24, 0) 2px,
+    rgba(33, 31, 24, 0) 10px
+  );
+}
+.cell.flip .face.front {
+  transform: rotateY(180deg);
+  color: var(--paper);
+}
+.cell.flip.red .face.front {
+  background-color: var(--brick);
+}
+.cell.flip.blue .face.front {
+  background-color: var(--navy);
+}
+.cell.flip.black .face.front {
+  background: repeating-linear-gradient(
+    135deg,
+    #171512 0px,
+    #171512 10px,
+    #322d24 10px,
+    #322d24 20px
+  );
+}
+.cell.flip.black .face.front .word::before {
+  content: '\2620  ';
+}
+.cell.flip.neutral .face.front {
+  background-color: var(--paper);
+  color: var(--ink);
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+@keyframes flip-ab-punch {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  35% {
+    transform: scale(1.1) rotate(-2deg);
+  }
+  65% {
+    transform: scale(0.95) rotate(1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+@keyframes flip-ab-flash {
+  0% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+/* Impact fires once the flip has settled -- the delay matches the
+   face-wrap transition duration above -- not during it: flip, then
+   punch. */
+.cell.flip.flip-ab.go {
+  animation: flip-ab-punch 0.26s ease-out;
+  animation-delay: 0.48s;
+}
+.cell.flip .flash {
+  position: absolute;
+  inset: -4px;
+  background: #fff;
+  border-radius: 2px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.cell.flip.flip-ab.go .flash {
+  animation: flip-ab-flash 0.28s ease-out;
+  animation-delay: 0.48s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell.flip .face-wrap {
+    transition: none;
+  }
+  .cell.flip.flip-ab.go {
+    animation: none;
+  }
+  .cell.flip.flip-ab.go .flash {
+    animation: none;
+  }
+}
+
+/* Game-over "here's what everyone missed" dimming for cards nobody
+   picked, moved onto the back face since the outer cell has no
+   background of its own in the flip structure above. */
+.player .board.win > .cell.flip.hidden-word.red .face.back {
+  background: color-mix(in srgb, var(--brick) 40%, var(--paper-2));
+}
+.player .board.win > .cell.flip.hidden-word.blue .face.back {
+  background: color-mix(in srgb, var(--navy) 40%, var(--paper-2));
+}
+.player .board.win > .cell.flip.hidden-word.black .face.back {
+  background: color-mix(in srgb, var(--redacted) 40%, var(--paper-2));
 }
 
 #game-view.full-screen {
