@@ -833,7 +833,7 @@
 }
 
 .toggle-set {
-  margin: 1em;
+  margin: 1.6em 1em;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -887,19 +887,24 @@
 .toggle-state {
   font-weight: bold;
   font-family: var(--mono);
+  /* font-weight: bold alone reads as only subtly heavier in the
+     monospace fallback stack (same issue as #timer's countdown) --
+     the stroke thickens the glyphs enough that ON/OFF actually reads
+     as bold at a glance, which is the point of showing it at all. */
+  -webkit-text-stroke: 0.4px currentColor;
 }
 
 /* Timer settings, in the in-game settings menu -- moved here from
    lobby.css since the timer can now be turned on/off (and reconfigured)
    mid-game instead of only at creation time. See setTimerOptions in
-   game.tsx. */
+   game.tsx. No left/right margin override on its .toggle-set here
+   anymore -- it used to zero those out to fit the lobby's form layout,
+   but that left it indented differently than Full-screen/Mature now
+   that it lives in this same settings panel; inheriting the standard
+   .toggle-set margin lines all three up. */
 #timer-settings {
-  margin: 2em 0 2em 0;
+  margin: 2.4em 0 2em 0;
   font-family: var(--serif);
-}
-#timer-settings .toggle-set {
-  margin-left: 0;
-  margin-right: 0;
 }
 #timer-settings .label {
   font-size: 0.9em;
