@@ -47,6 +47,14 @@ type templateParameters struct {
 }
 
 func (s *Server) handleIndex(rw http.ResponseWriter, req *http.Request) {
+	// Told a bare "no cache" once and still hit stale games behind a
+	// Cloudflare Tunnel -- Cloudflare (and browsers) will still cache a
+	// no-cache/must-revalidate response opportunistically. no-store is
+	// the one directive that means "don't keep a copy of this at all",
+	// which is what a page that must always reflect whichever container
+	// is currently running actually needs.
+	rw.Header().Set("Cache-Control", "no-store")
+
 	dir, id := filepath.Split(req.URL.Path)
 	if dir != "" && dir != "/" {
 		http.NotFound(rw, req)
