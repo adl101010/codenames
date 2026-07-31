@@ -418,7 +418,7 @@ export class Game extends React.Component {
     return (
       <div id="clue-display">
         <span className="clue-word">{game.clue}</span>
-        <span className="clue-number">
+        <span className={'clue-number ' + this.currentTeam()}>
           {game.clue_number === 0 ? '∞' : game.clue_number}
         </span>
       </div>
@@ -714,7 +714,8 @@ export class Game extends React.Component {
           <div className="confirm-overlay">
             <div className="confirm-dialog">
               <p className="confirm-message">
-                Give the clue &ldquo;{this.state.clueText}&rdquo; for{' '}
+                Give the clue &ldquo;{this.state.clueText.toUpperCase()}
+                &rdquo; for{' '}
                 {this.state.clueNumberInput === 0
                   ? 'unlimited'
                   : this.state.clueNumberInput}

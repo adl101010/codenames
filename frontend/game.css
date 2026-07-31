@@ -129,6 +129,14 @@
   font-weight: 700;
   font-size: 0.9em;
 }
+/* Matches whichever team's turn it currently is, same as the turn badge
+   in #status-line, instead of a fixed olive regardless of team. */
+#clue-display .clue-number.red {
+  background: var(--brick);
+}
+#clue-display .clue-number.blue {
+  background: var(--navy);
+}
 #clue-display.waiting {
   opacity: 0.6;
   font-style: italic;
