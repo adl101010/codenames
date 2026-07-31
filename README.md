@@ -27,7 +27,7 @@ Everything below is specific to this fork; none of it exists upstream.
 
 ### Hosting / ops
 
-- Rebranded from "horsepaste" to "Codenames" throughout; removed an embedded political message, a vanity game-ID list tied to it, and an undisclosed axios beacon call to a third-party domain that fired on every page load. (Note: a separate, visible Google Analytics snippet from the upstream project is still present in `frontend.go` and still fires on every load -- it wasn't touched by this fork and is a candidate for removal if you'd rather not send analytics anywhere.)
+- Rebranded from "horsepaste" to "Codenames" throughout; removed an embedded political message, a vanity game-ID list tied to it, an undisclosed axios beacon call to a third-party domain that fired on every page load, and the upstream project's Google Analytics snippet. No code in this fork calls out to any third-party service -- it's fully local/standalone.
 - `docker-compose.yml` added for deployment via [Dockge](https://github.com/louislam/dockge).
 - CI publishes to GHCR on every push to `master`; builds are `linux/amd64` only (arm64 support was dropped -- this fork doesn't need it, and it was slowing every build down under QEMU emulation).
 - The index page sends `Cache-Control: no-store`, so a CDN/tunnel (e.g. Cloudflare Tunnel) sitting in front of the deployment can't serve a stale cached copy of the page after a new image is deployed, or keep serving a cached copy at all once the container's stopped.
