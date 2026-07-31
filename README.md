@@ -8,7 +8,7 @@ This is a personal fork of [jbowens/horsepaste](https://github.com/jbowens/horse
 
 ## How I use this at parties
 
-Player view goes up on a TV so everyone can see the board. Each team's clue giver sits elsewhere in the room with an iPad on the clue giver view, and effectively runs the game from there -- entering clues, locking in their team's card picks, and manually ending the turn when they're done or want to skip the bonus guess.
+Player view goes up on a TV so everyone can see the board. Both teams' clue givers sit elsewhere in the room sharing a single iPad on the clue giver view, passing it back and forth turn by turn, and effectively run the game from there -- entering clues, locking in their team's card picks, and manually ending the turn when they're done or want to skip the bonus guess.
 
 | Player view (TV) | Clue giver view (iPad) |
 | --- | --- |
