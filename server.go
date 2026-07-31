@@ -1,6 +1,7 @@
 package codenames
 
 import (
+	"bufio"
 	"crypto/subtle"
 	"encoding/json"
 	"html/template"
@@ -301,6 +302,41 @@ func (s *Server) handleNextGame(rw http.ResponseWriter, req *http.Request) {
 	writeGame(rw, gh)
 }
 
+// loadMatureWords populates the process-wide mature word set used to cap
+// how many mature words can land on a single board.
+//
+// Read line by line rather than via dictionary.Load so multi-word entries
+// ("ICE CREAM") and hyphenated ones ("G-SPOT") survive intact -- a word
+// silently mangled here would stop matching and could slip onto a board.
+func loadMatureWords(path string) error {
+	f, err := os.Open(path)
+	if os.IsNotExist(err) {
+		log.Printf("[STARTUP] WARNING: %s not found, mature word cap disabled\n", path)
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	set := map[string]bool{}
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		w := strings.TrimSpace(strings.ToUpper(scanner.Text()))
+		if w != "" {
+			set[w] = true
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+
+	matureWords = set
+	log.Printf("[STARTUP] Loaded %d mature words (max %d per board)\n",
+		len(set), maxMatureWords)
+	return nil
+}
+
 // sameWordSet reports whether two word sets are identical. Both are
 // sorted at the point they're built, so an element-wise compare is
 // enough; an unsorted input would only ever cause a false "differs",
@@ -381,6 +417,9 @@ func (s *Server) Start(games map[string]*Game) error {
 	}
 	d, err := dictionary.Load("assets/original.txt")
 	if err != nil {
+		return err
+	}
+	if err := loadMatureWords("assets/mature.txt"); err != nil {
 		return err
 	}
 	s.tpl, err = template.New("index").Parse(tpl)

@@ -10,6 +10,16 @@ import (
 
 const wordsPerGame = 25
 
+// maxMatureWords caps how many mature words may appear on a single board
+// when the mature word set is in play.
+const maxMatureWords = 4
+
+// matureWords is the set of words considered mature, loaded once at startup
+// from assets/mature.txt. It's process-wide configuration rather than
+// per-game state, so it deliberately isn't part of GameState -- games stay
+// serializable exactly as before. Nil/empty disables capping.
+var matureWords map[string]bool
+
 type Team int
 
 const (
@@ -236,6 +246,8 @@ func newGame(id string, state GameState, opts GameOptions) *Game {
 		game.Words = append(game.Words, w)
 	}
 
+	capMatureWords(game.Words, state.WordSet, randRnd)
+
 	// Pick a random permutation of team assignments.
 	var teamAssignments []Team
 	teamAssignments = append(teamAssignments, Red.Repeat(8)...)
@@ -250,6 +262,64 @@ func newGame(id string, state GameState, opts GameOptions) *Game {
 	}
 	game.Layout = teamAssignments
 	return game
+}
+
+// capMatureWords swaps mature words beyond maxMatureWords for non-mature
+// words drawn from the same pool.
+//
+// It edits words in place, leaving board positions untouched. Team
+// assignment happens afterwards by shuffling teamAssignments and zipping
+// them positionally, so it's independent of word identity -- whichever
+// mature words survive the cap still land on red, blue, black or neutral
+// at random, with no extra work needed here.
+//
+// When the mature set isn't in play (the Mature setting off, so the client
+// sends a safe-only pool) nothing on the board is mature and this is a
+// no-op.
+func capMatureWords(words []string, pool []string, rnd *rand.Rand) {
+	if len(matureWords) == 0 {
+		return
+	}
+
+	onBoard := make(map[string]bool, len(words))
+	var matureCount int
+	for _, w := range words {
+		onBoard[w] = true
+		if matureWords[w] {
+			matureCount++
+		}
+	}
+	if matureCount <= maxMatureWords {
+		return
+	}
+
+	var replacements []string
+	for _, w := range pool {
+		if !matureWords[w] && !onBoard[w] {
+			replacements = append(replacements, w)
+		}
+	}
+	rnd.Shuffle(len(replacements), func(i, j int) {
+		replacements[i], replacements[j] = replacements[j], replacements[i]
+	})
+
+	// Visit positions in random order so the mature words that survive
+	// aren't biased towards the start of the board.
+	var kept, used int
+	for _, idx := range rnd.Perm(len(words)) {
+		if !matureWords[words[idx]] {
+			continue
+		}
+		if kept < maxMatureWords {
+			kept++
+			continue
+		}
+		if used == len(replacements) {
+			return // pool exhausted, leave the remainder as-is
+		}
+		words[idx] = replacements[used]
+		used++
+	}
 }
 
 func shuffle(rnd *rand.Rand, teamAssignments []Team) {
