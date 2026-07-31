@@ -99,7 +99,15 @@ type GameState struct {
 	// All three reset to their zero values whenever the turn changes (see
 	// resetClueState), the same moment Round increments -- a clue only
 	// ever applies to the turn it was given for.
-	Clue           string `json:"clue,omitempty"`
+	//
+	// No omitempty on Clue: found via an actual HTTP round-trip test, not
+	// by reading the struct, that omitempty on a string drops the JSON key
+	// entirely once it resets to "" rather than serializing "clue":"" --
+	// harmless for the frontend specifically (a missing key and "" are
+	// both falsy in JS's `if (!game.clue)`), but inconsistent with
+	// ClueNumber/CorrectGuesses always being present, and a landmine for
+	// any other consumer of this API that expects a stable response shape.
+	Clue           string `json:"clue"`
 	ClueNumber     int    `json:"clue_number"`
 	CorrectGuesses int    `json:"correct_guesses"`
 }
@@ -131,6 +139,14 @@ func nextGameState(state GameState) GameState {
 	}
 	state.Revealed = make([]bool, wordsPerGame)
 	state.Round = 0
+	// A brand new board means a brand new turn's clue. Found via an
+	// end-to-end HTTP test: unlike randomState (a fresh struct literal
+	// that never carries these forward), this function mutates an
+	// existing state, so without this the previous board's clue leaked
+	// into the new one.
+	state.Clue = ""
+	state.ClueNumber = 0
+	state.CorrectGuesses = 0
 	return state
 }
 
