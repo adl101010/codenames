@@ -524,6 +524,9 @@
   background-color: var(--navy);
 }
 .cell.flip.black .face.front {
+  /* Exception to the "text stays --ink" rule above: --ink on this
+     tile's near-black background is illegible, not just lower-
+     contrast like it is on red/blue. */
   background: repeating-linear-gradient(
     135deg,
     #171512 0px,
@@ -531,6 +534,7 @@
     #322d24 10px,
     #322d24 20px
   );
+  color: var(--paper);
 }
 .cell.flip.black .face.front .word::before {
   content: '\2620  ';
