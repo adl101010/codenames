@@ -15,14 +15,21 @@ const settingToggles = [
   },
 ];
 
+// Defaults applied when a setting has never been explicitly saved --
+// merged underneath whatever's in localStorage, so an explicit choice
+// (on or off) always wins over these.
+const defaultSettings = {
+  fullscreen: true,
+};
+
 export class Settings {
   static load() {
     try {
       const settingsBlob = localStorage.getItem('settings');
-      return JSON.parse(settingsBlob) || {};
+      return { ...defaultSettings, ...(JSON.parse(settingsBlob) || {}) };
     } catch (e) {
       console.error(e);
-      return {};
+      return { ...defaultSettings };
     }
   }
 
