@@ -43,10 +43,100 @@
   color: inherit;
 }
 
+/* Clue giver's word + number form, shown in place of the clue display
+   below until a clue has been given for the current turn. */
+#clue-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+#clue-form input#clue-word {
+  font-family: var(--mono);
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.4em 0.6em;
+  width: 8em;
+  background: var(--paper-2);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+}
+#clue-form select#clue-number {
+  font-family: var(--mono);
+  font-size: 1em;
+  padding: 0.4em 0.5em;
+  background: var(--paper-2);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+}
+#clue-form button {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.85em;
+  font-weight: 700;
+  padding: 0.5em 0.9em;
+  background: var(--olive);
+  color: var(--paper);
+  border: 1px solid var(--olive);
+  cursor: pointer;
+}
+#clue-form button:disabled {
+  background: var(--paper-2);
+  color: var(--ink);
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--ink);
+}
+
+/* The active clue for the current turn (both views) once given, or a
+   "waiting" placeholder for players before it has been. Swaps to
+   .bonus once the team has matched the clue's number -- see
+   renderClueArea() in game.tsx. */
+#clue-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+#clue-display .clue-word {
+  font-weight: 700;
+  font-size: 1.1em;
+}
+#clue-display .clue-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  background: var(--olive);
+  color: var(--paper);
+  font-weight: 700;
+  font-size: 0.9em;
+}
+#clue-display.waiting {
+  opacity: 0.6;
+  font-style: italic;
+  font-family: var(--serif);
+  text-transform: none;
+  letter-spacing: normal;
+}
+#clue-display.bonus {
+  font-weight: 700;
+  color: var(--paper);
+  background: var(--olive);
+  padding: 0.3em 0.8em;
+  border-radius: 2px;
+}
+
 #timer {
-  font-size: 1.5em;
+  font-size: 1em;
   font-family: var(--mono);
   font-weight: 700;
+  opacity: 0.75;
 }
 
 #status-line {
@@ -67,8 +157,17 @@
   border-top: 1px dashed var(--line);
   border-bottom: 1px dashed var(--line);
 }
-#status-line .status-text {
+/* Wraps the turn badge and the timer together, since #timer moved here
+   from #infoContent (the clue display took its old spot -- see
+   #clue-form / #clue-display below). Grid centers this column as a
+   unit rather than centering .status-text directly, since .status-text
+   is no longer itself a direct child of the #status-line grid. */
+.status-col {
   justify-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
 }
 .status-text {
   font-weight: 700;

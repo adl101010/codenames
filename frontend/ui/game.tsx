@@ -20,6 +20,9 @@ export class Game extends React.Component {
       mode: 'game',
       cluegiver: false,
       confirmNextGame: false,
+      clueText: '',
+      clueNumberInput: 1,
+      confirmClue: false,
       // Maps a board index to which reveal animation it should play in
       // player view: 'flip-a' for a normal reveal, 'flip-ab' for the
       // black card or the card that ends the game. Populated once, the
@@ -264,7 +267,52 @@ export class Game extends React.Component {
         current_round: this.state.game.round,
       })
       .then(({ data }) => {
-        this.setState({ game: data });
+        // Clear any unsent clue draft -- the server already reset the
+        // real clue for the new turn, but the local input's typed text
+        // is separate state and would otherwise linger into whoever
+        // gives the next clue.
+        this.setState({ game: data, clueText: '', clueNumberInput: 1 });
+      });
+  }
+
+  public updateClueText(e) {
+    this.setState({ clueText: e.target.value });
+  }
+
+  public updateClueNumber(e) {
+    this.setState({ clueNumberInput: parseInt(e.target.value, 10) });
+  }
+
+  public requestSetClue(e) {
+    e.preventDefault();
+    if (!this.state.clueText.trim()) {
+      return;
+    }
+    this.setState({ confirmClue: true });
+  }
+
+  public cancelClue(e) {
+    if (e != null) {
+      e.preventDefault();
+    }
+    this.setState({ confirmClue: false });
+  }
+
+  public confirmSetClue(e) {
+    e.preventDefault();
+    axios
+      .post('/set-clue', {
+        game_id: this.state.game.id,
+        clue: this.state.clueText,
+        number: this.state.clueNumberInput,
+      })
+      .then(({ data }) => {
+        this.setState({
+          game: data,
+          clueText: '',
+          clueNumberInput: 1,
+          confirmClue: false,
+        });
       });
   }
 
@@ -322,6 +370,77 @@ export class Game extends React.Component {
     vals[setting] = !vals[setting];
     this.setState({ settings: vals });
     Settings.save(vals);
+  }
+
+  // The clue/number display that sits where the timer used to (see
+  // render()). Cluegiver-only clue-entry form when no clue has been given
+  // yet for this turn; otherwise the active clue for both views, swapping
+  // to a "Bonus or skip?" prompt once the team has matched the clue's
+  // number. That prompt is purely informational -- taking the bonus is
+  // just guessing another card, and skipping is just End Turn -- there
+  // are no new buttons for it.
+  private renderClueArea() {
+    const game = this.state.game;
+    if (game.winning_team) {
+      return null;
+    }
+
+    if (!game.clue) {
+      if (!this.state.cluegiver) {
+        return (
+          <div id="clue-display" className="waiting">
+            Waiting for clue&hellip;
+          </div>
+        );
+      }
+      return (
+        <form id="clue-form" onSubmit={(e) => this.requestSetClue(e)}>
+          <input
+            type="text"
+            id="clue-word"
+            aria-label="Clue word"
+            placeholder="Clue"
+            maxLength={40}
+            value={this.state.clueText}
+            onChange={(e) => this.updateClueText(e)}
+          />
+          <select
+            id="clue-number"
+            aria-label="Clue number"
+            value={this.state.clueNumberInput}
+            onChange={(e) => this.updateClueNumber(e)}
+          >
+            {[1, 2, 3, 4, 5, 6, 0].map((n) => (
+              <option key={n} value={n}>
+                {n === 0 ? 'Unlimited' : n}
+              </option>
+            ))}
+          </select>
+          <button type="submit" disabled={!this.state.clueText.trim()}>
+            Give clue
+          </button>
+        </form>
+      );
+    }
+
+    const bonusAvailable =
+      game.clue_number > 0 && game.correct_guesses >= game.clue_number;
+    if (bonusAvailable) {
+      return (
+        <div id="clue-display" className="bonus">
+          Bonus or skip?
+        </div>
+      );
+    }
+
+    return (
+      <div id="clue-display">
+        <span className="clue-word">{game.clue}</span>
+        <span className="clue-number">
+          {game.clue_number === 0 ? '∞' : game.clue_number}
+        </span>
+      </div>
+    );
   }
 
   render() {
@@ -397,7 +516,7 @@ export class Game extends React.Component {
       >
         <div id="infoContent">
           {shareLink}
-          {timer}
+          {this.renderClueArea()}
         </div>
         <div id="status-line" className={statusClass}>
           <div
@@ -416,8 +535,11 @@ export class Game extends React.Component {
               <span className="team-count">{this.remaining('blue')}</span>
             </span>
           </div>
-          <div id="status" className="status-text">
-            {status}
+          <div className="status-col">
+            <div id="status" className="status-text">
+              {status}
+            </div>
+            {timer}
           </div>
           {endTurnButton}
         </div>
@@ -522,6 +644,28 @@ export class Game extends React.Component {
             Next game
           </button>
         </div>
+        {this.state.confirmClue && (
+          <div className="confirm-overlay">
+            <div className="confirm-dialog">
+              <p className="confirm-message">
+                Give the clue &ldquo;{this.state.clueText}&rdquo; for{' '}
+                {this.state.clueNumberInput === 0
+                  ? 'unlimited'
+                  : this.state.clueNumberInput}
+                ?
+              </p>
+              <div className="confirm-actions">
+                <button onClick={(e) => this.cancelClue(e)}>Cancel</button>
+                <button
+                  className="confirm-yes"
+                  onClick={(e) => this.confirmSetClue(e)}
+                >
+                  Give clue
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {this.state.confirmNextGame && (
           <div className="confirm-overlay">
             <div className="confirm-dialog">

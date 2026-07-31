@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -93,6 +94,14 @@ type GameState struct {
 	Round     int      `json:"round"`
 	Revealed  []bool   `json:"revealed"`
 	WordSet   []string `json:"word_set"`
+
+	// Clue, ClueNumber and CorrectGuesses track the current turn's clue.
+	// All three reset to their zero values whenever the turn changes (see
+	// resetClueState), the same moment Round increments -- a clue only
+	// ever applies to the turn it was given for.
+	Clue           string `json:"clue,omitempty"`
+	ClueNumber     int    `json:"clue_number"`
+	CorrectGuesses int    `json:"correct_guesses"`
 }
 
 func (gs GameState) anyRevealed() bool {
@@ -185,7 +194,42 @@ func (g *Game) NextTurn(currentTurn int) bool {
 	g.UpdatedAt = time.Now()
 	g.Round++
 	g.RoundStartedAt = time.Now()
+	g.resetClueState()
 	return true
+}
+
+// resetClueState clears the current turn's clue so the next clue giver
+// starts with a blank slate. Called everywhere Round is incremented.
+func (g *Game) resetClueState() {
+	g.Clue = ""
+	g.ClueNumber = 0
+	g.CorrectGuesses = 0
+}
+
+// SetClue records the current turn's clue and number. Only valid once per
+// turn -- real Codenames doesn't let you change your clue mid-turn -- and
+// only before the game has ended.
+func (g *Game) SetClue(clue string, number int) error {
+	if g.WinningTeam != nil {
+		return errors.New("game is already over")
+	}
+	clue = strings.TrimSpace(clue)
+	if clue == "" {
+		return errors.New("clue must not be empty")
+	}
+	if len(clue) > 100 {
+		return errors.New("clue is too long")
+	}
+	if number < 0 || number > 6 {
+		return errors.New("clue number must be between 0 and 6")
+	}
+	if g.Clue != "" {
+		return errors.New("a clue has already been given this turn")
+	}
+	g.UpdatedAt = time.Now()
+	g.Clue = clue
+	g.ClueNumber = number
+	return nil
 }
 
 func (g *Game) Guess(idx int) error {
@@ -205,9 +249,30 @@ func (g *Game) Guess(idx int) error {
 	}
 
 	g.checkWinningCondition()
+	if g.WinningTeam != nil {
+		return nil
+	}
+
 	if g.Layout[idx] != g.currentTeam() {
+		// Wrong guess (neutral or the opponent's card) always ends the
+		// turn immediately, regardless of the clue's number.
 		g.Round = g.Round + 1
 		g.RoundStartedAt = time.Now()
+		g.resetClueState()
+		return nil
+	}
+
+	// Correct guess for the current team.
+	g.CorrectGuesses++
+	if g.ClueNumber > 0 && g.CorrectGuesses > g.ClueNumber {
+		// ClueNumber == 0 means the official "unlimited" clue variant --
+		// no quota, so no bonus-guess cap applies. Otherwise, once the
+		// team has matched the clue's number, they get exactly one more
+		// (the bonus) before the turn ends regardless of whether that
+		// guess was also correct.
+		g.Round = g.Round + 1
+		g.RoundStartedAt = time.Now()
+		g.resetClueState()
 	}
 	return nil
 }
