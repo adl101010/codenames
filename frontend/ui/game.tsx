@@ -669,7 +669,7 @@ export class Game extends React.Component {
         </div>
         {this.state.confirmClue && (
           <div className="confirm-overlay">
-            <div className="confirm-dialog">
+            <div className="confirm-dialog clue-confirm">
               <p className="confirm-message">
                 Give the clue &ldquo;{this.state.clueText}&rdquo; for{' '}
                 {this.state.clueNumberInput === 0

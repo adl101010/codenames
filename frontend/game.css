@@ -443,6 +443,27 @@
   border-color: var(--redacted);
 }
 
+/* The clue giver confirms on an iPad touchscreen, not a mouse -- bigger
+   text and bigger buttons than the base .confirm-dialog (used elsewhere,
+   e.g. Next Game, where a mis-tap is much lower-stakes) so the message
+   is easy to read at arm's length and neither button is a fumble to
+   land a finger on. */
+.confirm-dialog.clue-confirm {
+  max-width: 480px;
+  padding: 2.2em 2.4em;
+}
+.clue-confirm .confirm-message {
+  font-size: 1.5em;
+  margin-bottom: 1.4em;
+}
+.clue-confirm .confirm-actions {
+  font-size: 1.1em;
+  gap: 1em;
+}
+.clue-confirm .confirm-actions button {
+  padding: 0.9em 1.7em;
+}
+
 .cell {
   box-sizing: border-box;
   display: flex;
