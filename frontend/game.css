@@ -202,6 +202,13 @@
   left: 3px;
   width: calc(50% - 3px);
   height: calc(100% - 6px);
+  /* Required: the calc()s above are meant to describe the knob's final
+     rendered size, but without this its 1px border is added on top of
+     them, making it 2px taller and wider than intended. Combined with
+     the fixed top/left of 3px that leaves only a 1px gap on the bottom
+     and trailing edges against 3px on the others -- the knob visibly
+     sits low and overhangs its slot. Matches .switch below. */
+  box-sizing: border-box;
   background: linear-gradient(180deg, #8a7a48, var(--olive) 60%, #55502c);
   border: 1px solid #3f3a20;
   border-radius: 999px;
