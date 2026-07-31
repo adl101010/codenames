@@ -504,7 +504,12 @@
 }
 .cell.flip .face.front {
   transform: rotateY(180deg);
-  color: var(--paper);
+  /* No color override: text stays --ink (inherited from .cell) on both
+     faces. It used to switch to --paper here, so the moment the card
+     crossed 90deg the text visibly snapped from black to the same
+     cream tone as the (now-gone) unrevealed background -- backface-
+     visibility makes that a hard cut, not a fade, which read as
+     jarring. Same color throughout removes the cut entirely. */
 }
 .cell.flip.red .face.front {
   background-color: var(--brick);
