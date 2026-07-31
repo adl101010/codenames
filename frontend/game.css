@@ -402,32 +402,37 @@
   justify-content: center;
   z-index: 10;
 }
+/* Sized for an iPad touchscreen, not a mouse -- every confirmation in
+   this app (clue, Next Game) is one a player taps mid-game, so all of
+   them get bigger text and bigger buttons than a mouse-sized dialog
+   would need, to stay easy to read at arm's length and hard to fumble
+   a tap on. */
 .confirm-dialog {
   background: var(--paper);
   border: 1px solid var(--ink);
   box-shadow: 4px 6px 0 rgba(0, 0, 0, 0.35);
-  padding: 1.6em 1.8em;
-  max-width: 320px;
+  padding: 2.2em 2.4em;
+  max-width: 480px;
   text-align: center;
   font-family: var(--serif);
   color: var(--ink);
 }
 .confirm-message {
-  margin: 0 0 1.2em;
+  margin: 0 0 1.4em;
   line-height: 1.5;
-  font-size: 0.95em;
+  font-size: 1.5em;
 }
 .confirm-actions {
   display: flex;
-  gap: 0.6em;
+  gap: 1em;
   justify-content: center;
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 0.78em;
+  font-size: 1.1em;
 }
 .confirm-actions button {
-  padding: 0.6em 1.1em;
+  padding: 0.9em 1.7em;
   border: 1px solid var(--ink);
   background: var(--paper-2);
   color: var(--ink);
@@ -441,27 +446,6 @@
 .confirm-actions button.confirm-yes:hover {
   background: var(--redacted);
   border-color: var(--redacted);
-}
-
-/* The clue giver confirms on an iPad touchscreen, not a mouse -- bigger
-   text and bigger buttons than the base .confirm-dialog (used elsewhere,
-   e.g. Next Game, where a mis-tap is much lower-stakes) so the message
-   is easy to read at arm's length and neither button is a fumble to
-   land a finger on. */
-.confirm-dialog.clue-confirm {
-  max-width: 480px;
-  padding: 2.2em 2.4em;
-}
-.clue-confirm .confirm-message {
-  font-size: 1.5em;
-  margin-bottom: 1.4em;
-}
-.clue-confirm .confirm-actions {
-  font-size: 1.1em;
-  gap: 1em;
-}
-.clue-confirm .confirm-actions button {
-  padding: 0.9em 1.7em;
 }
 
 .cell {
