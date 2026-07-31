@@ -10,6 +10,10 @@ This is a personal fork of [jbowens/horsepaste](https://github.com/jbowens/horse
 
 Player view goes up on a TV so everyone can see the board. Each team's clue giver sits elsewhere in the room with an iPad on the clue giver view, and effectively runs the game from there -- entering clues, locking in their team's card picks, and manually ending the turn when they're done or want to skip the bonus guess.
 
+| Player view (TV) | Clue giver view (iPad) |
+| --- | --- |
+| ![Player view](player-view.png) | ![Clue giver view](cluegiver-view.png) |
+
 A prebuilt image is published to GHCR on every push to `master` (see `.github/workflows/docker-ghcr.yml`); `docker-compose.yml` pulls `ghcr.io/adl101010/codenames:latest` directly. The image builds `linux/amd64` only.
 
 ## Fork changes
