@@ -185,9 +185,10 @@
    knob sliding between two labels rather than two separate buttons. */
 .role-switch {
   position: relative;
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  width: 11em;
+  width: 13em;
   height: 2.3em;
   padding: 3px;
   background: var(--paper-2);
@@ -212,7 +213,11 @@
 }
 .switch-label {
   flex: 1;
+  box-sizing: border-box;
+  padding: 0 0.5em;
   text-align: center;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
   z-index: 1;
   color: var(--ink);
   opacity: 0.55;

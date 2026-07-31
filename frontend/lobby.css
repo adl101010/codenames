@@ -84,11 +84,18 @@ h2 {
 }
 
 p.intro {
+  /* Was text-align: justify at a narrow (500px) column width with no
+     hyphenation -- justify without hyphenation stretches word gaps
+     unevenly to fill each line, which reads as "hard to read" well
+     before contrast is the issue. Left-aligned avoids the rivers of
+     whitespace; the color/size bump gives it a bit more presence
+     against the textured page background it sits directly on. */
   line-height: 1.65;
   margin-bottom: 3em;
-  text-align: justify;
+  text-align: left;
   font-family: var(--serif);
-  font-size: 0.98em;
+  font-size: 1.05em;
+  color: var(--ink);
 }
 
 #available-games {
