@@ -379,20 +379,41 @@ export class Game extends React.Component {
   // number. That prompt is purely informational -- taking the bonus is
   // just guessing another card, and skipping is just End Turn -- there
   // are no new buttons for it.
-  private renderClueArea() {
+  // Shared by both roles once a clue has been given: the word + number, or
+  // the "Bonus or skip?" indicator once quota is reached. Only the "no clue
+  // yet" state differs between the clue giver (the input form) and players
+  // (a waiting placeholder) -- see renderClueGiverArea/renderClueDisplay.
+  private renderClueOrBonus() {
+    const game = this.state.game;
+    const bonusAvailable =
+      game.clue_number > 0 && game.correct_guesses >= game.clue_number;
+    if (bonusAvailable) {
+      return (
+        <div id="clue-display" className="bonus">
+          Bonus or skip?
+        </div>
+      );
+    }
+
+    return (
+      <div id="clue-display">
+        <span className="clue-word">{game.clue}</span>
+        <span className="clue-number">
+          {game.clue_number === 0 ? '∞' : game.clue_number}
+        </span>
+      </div>
+    );
+  }
+
+  // Clue giver's slot in the bottom mode-toggle row: the clue-entry form
+  // until a clue's been given for the turn, then the same word/bonus
+  // display players see (so the giver has a reminder of what they clued).
+  private renderClueGiverArea() {
     const game = this.state.game;
     if (game.winning_team) {
       return null;
     }
-
     if (!game.clue) {
-      if (!this.state.cluegiver) {
-        return (
-          <div id="clue-display" className="waiting">
-            Waiting for clue&hellip;
-          </div>
-        );
-      }
       return (
         <form id="clue-form" onSubmit={(e) => this.requestSetClue(e)}>
           <input
@@ -422,25 +443,24 @@ export class Game extends React.Component {
         </form>
       );
     }
+    return this.renderClueOrBonus();
+  }
 
-    const bonusAvailable =
-      game.clue_number > 0 && game.correct_guesses >= game.clue_number;
-    if (bonusAvailable) {
+  // Player's slot in the status line: a waiting placeholder before a clue
+  // has been given, then the same word/bonus display the giver sees.
+  private renderClueDisplay() {
+    const game = this.state.game;
+    if (game.winning_team) {
+      return null;
+    }
+    if (!game.clue) {
       return (
-        <div id="clue-display" className="bonus">
-          Bonus or skip?
+        <div id="clue-display" className="waiting">
+          Waiting for clue&hellip;
         </div>
       );
     }
-
-    return (
-      <div id="clue-display">
-        <span className="clue-word">{game.clue}</span>
-        <span className="clue-number">
-          {game.clue_number === 0 ? '∞' : game.clue_number}
-        </span>
-      </div>
-    );
+    return this.renderClueOrBonus();
   }
 
   render() {
@@ -514,10 +534,7 @@ export class Game extends React.Component {
           this.extraClasses()
         }
       >
-        <div id="infoContent">
-          {shareLink}
-          {this.renderClueArea()}
-        </div>
+        {shareLink && <div id="infoContent">{shareLink}</div>}
         <div id="status-line" className={statusClass}>
           <div
             id="remaining"
@@ -542,6 +559,7 @@ export class Game extends React.Component {
             {timer}
           </div>
           {endTurnButton}
+          {!this.state.cluegiver && this.renderClueDisplay()}
         </div>
         <div className={'board ' + statusClass}>
           {this.state.game.words.map((w, idx) => {
@@ -619,30 +637,35 @@ export class Game extends React.Component {
           })}
         </div>
         <div id="mode-toggle">
-          <SettingsButton
-            onClick={(e) => {
-              this.toggleSettingsView(e);
-            }}
-          />
-          <button
-            type="button"
-            className={
-              'role-switch ' + (this.state.cluegiver ? 'cluegiver' : 'player')
-            }
-            role="switch"
-            aria-checked={this.state.cluegiver}
-            aria-label="Switch between player and clue giver view"
-            onClick={(e) =>
-              this.toggleRole(e, this.state.cluegiver ? 'player' : 'cluegiver')
-            }
-          >
-            <span className="switch-knob" aria-hidden="true"></span>
-            <span className="switch-label player-label">Player</span>
-            <span className="switch-label cluegiver-label">Clue giver</span>
-          </button>
-          <button onClick={(e) => this.nextGame(e)} id="next-game-btn">
-            Next game
-          </button>
+          <div id="mode-toggle-clue">
+            {this.state.cluegiver && this.renderClueGiverArea()}
+          </div>
+          <div id="mode-toggle-right">
+            <SettingsButton
+              onClick={(e) => {
+                this.toggleSettingsView(e);
+              }}
+            />
+            <button
+              type="button"
+              className={
+                'role-switch ' + (this.state.cluegiver ? 'cluegiver' : 'player')
+              }
+              role="switch"
+              aria-checked={this.state.cluegiver}
+              aria-label="Switch between player and clue giver view"
+              onClick={(e) =>
+                this.toggleRole(e, this.state.cluegiver ? 'player' : 'cluegiver')
+              }
+            >
+              <span className="switch-knob" aria-hidden="true"></span>
+              <span className="switch-label player-label">Player</span>
+              <span className="switch-label cluegiver-label">Clue giver</span>
+            </button>
+            <button onClick={(e) => this.nextGame(e)} id="next-game-btn">
+              Next game
+            </button>
+          </div>
         </div>
         {this.state.confirmClue && (
           <div className="confirm-overlay">
