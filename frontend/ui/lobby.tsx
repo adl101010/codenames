@@ -1,13 +1,10 @@
 import * as React from 'react';
 import axios from 'axios';
-import TimerSettings from '~/ui/timer_settings';
 import { Settings } from '~/ui/settings';
 import { computeWordSet } from '~/wordset';
 
 export const Lobby = ({ defaultGameID }) => {
   const [newGameName, setNewGameName] = React.useState(defaultGameID);
-  const [timer, setTimer] = React.useState(null);
-  const [enforceTimerEnabled, setEnforceTimerEnabled] = React.useState(false);
 
   function handleNewGame(e) {
     e.preventDefault();
@@ -15,14 +12,15 @@ export const Lobby = ({ defaultGameID }) => {
       return;
     }
 
+    // Timer is off by default for every new game -- it's turned on (and
+    // configured) from the in-game settings menu instead, so it can also
+    // be toggled mid-game rather than only at creation time. See
+    // Game.setTimerOptions in game.tsx.
     axios
       .post('/next-game', {
         game_id: newGameName,
         word_set: computeWordSet(Settings.load()),
         create_new: false,
-        timer_duration_ms:
-          timer && timer.length ? timer[0] * 60 * 1000 + timer[1] * 1000 : 0,
-        enforce_timer: timer && timer.length && enforceTimerEnabled,
       })
       .then(() => {
         const newURL = (document.location.pathname = '/' + newGameName);
@@ -53,15 +51,6 @@ export const Lobby = ({ defaultGameID }) => {
           <button disabled={!newGameName.length} onClick={handleNewGame}>
             Go
           </button>
-
-          <TimerSettings
-            {...{
-              timer,
-              setTimer,
-              enforceTimerEnabled,
-              setEnforceTimerEnabled,
-            }}
-          />
         </form>
       </div>
     </div>

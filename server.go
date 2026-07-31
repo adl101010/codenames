@@ -241,6 +241,34 @@ func (s *Server) handleSetClue(rw http.ResponseWriter, req *http.Request) {
 	writeGame(rw, gh)
 }
 
+// handleSetOptions lets the timer be turned on/off (and its duration
+// changed) from the in-game settings menu, on a game already in progress
+// -- unlike timer_duration_ms/enforce_timer sent to /next-game, which only
+// take effect for a game being created.
+func (s *Server) handleSetOptions(rw http.ResponseWriter, req *http.Request) {
+	var request struct {
+		GameID          string `json:"game_id"`
+		TimerDurationMS int64  `json:"timer_duration_ms"`
+		EnforceTimer    bool   `json:"enforce_timer"`
+	}
+
+	decoder := json.NewDecoder(req.Body)
+	if err := decoder.Decode(&request); err != nil {
+		http.Error(rw, "Error decoding", 400)
+		return
+	}
+
+	gh := s.getGame(request.GameID)
+	gh.update(func(g *Game) bool {
+		g.SetOptions(GameOptions{
+			TimerDurationMS: request.TimerDurationMS,
+			EnforceTimer:    request.EnforceTimer,
+		})
+		return true
+	})
+	writeGame(rw, gh)
+}
+
 func (s *Server) handleNextGame(rw http.ResponseWriter, req *http.Request) {
 	var request struct {
 		GameID          string   `json:"game_id"`
@@ -461,6 +489,7 @@ func (s *Server) Start(games map[string]*Game) error {
 	s.mux.HandleFunc("/end-turn", s.handleEndTurn)
 	s.mux.HandleFunc("/guess", s.handleGuess)
 	s.mux.HandleFunc("/set-clue", s.handleSetClue)
+	s.mux.HandleFunc("/set-options", s.handleSetOptions)
 	s.mux.HandleFunc("/game-state", s.handleGameState)
 	s.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("frontend/dist"))))
 	s.mux.HandleFunc("/", s.handleIndex)

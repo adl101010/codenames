@@ -105,6 +105,7 @@ export class SettingsPanel extends React.Component {
               />
             ))}
           </div>
+          {this.props.children}
         </div>
       </div>
     );

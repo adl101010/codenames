@@ -2,6 +2,7 @@ import * as React from 'react';
 import axios from 'axios';
 import { Settings, SettingsButton, SettingsPanel } from '~/ui/settings';
 import Timer from '~/ui/timer';
+import TimerSettings from '~/ui/timer_settings';
 import { computeWordSet } from '~/wordset';
 
 const defaultFavicon =
@@ -372,6 +373,25 @@ export class Game extends React.Component {
     Settings.save(vals);
   }
 
+  // Pushes a timer config change to the live game -- unlike the other
+  // settings above, which are purely local preferences, the timer is
+  // shared game state: it needs to reach every connected player, and
+  // take effect on the current turn, not just the next one. Read
+  // straight off this.state.game (rather than kept as separate local
+  // state) so it always reflects what's actually live, including
+  // changes made from another device's settings menu.
+  public setTimerOptions(timerDurationMs, enforceTimer) {
+    axios
+      .post('/set-options', {
+        game_id: this.state.game.id,
+        timer_duration_ms: timerDurationMs,
+        enforce_timer: enforceTimer,
+      })
+      .then(({ data }) => {
+        this.setState({ game: data });
+      });
+  }
+
   // The clue/number display that sits where the timer used to (see
   // render()). Cluegiver-only clue-entry form when no clue has been given
   // yet for this turn; otherwise the active clue for both views, swapping
@@ -473,7 +493,30 @@ export class Game extends React.Component {
           toggleView={(e) => this.toggleSettingsView(e)}
           toggle={(e, setting) => this.toggleSetting(e, setting)}
           values={this.state.settings}
-        />
+        >
+          <TimerSettings
+            timer={
+              this.state.game.timer_duration_ms > 0
+                ? [
+                    Math.floor(this.state.game.timer_duration_ms / 60000),
+                    Math.floor(
+                      (this.state.game.timer_duration_ms % 60000) / 1000
+                    ),
+                  ]
+                : null
+            }
+            setTimer={(newTimer) => {
+              const ms = newTimer
+                ? newTimer[0] * 60000 + newTimer[1] * 1000
+                : 0;
+              this.setTimerOptions(ms, ms > 0 && this.state.game.enforce_timer);
+            }}
+            enforceTimerEnabled={!!this.state.game.enforce_timer}
+            setEnforceTimerEnabled={(newVal) =>
+              this.setTimerOptions(this.state.game.timer_duration_ms, newVal)
+            }
+          />
+        </SettingsPanel>
       );
     }
 

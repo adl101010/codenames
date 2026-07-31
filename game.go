@@ -168,6 +168,19 @@ type GameOptions struct {
 	EnforceTimer    bool  `json:"enforce_timer,omitempty"`
 }
 
+// SetOptions updates the timer configuration for a game already in
+// progress -- unlike GameOptions being set once at newGame time, this can
+// be called mid-round from the settings menu. RoundStartedAt resets to
+// now so turning the timer on (or changing its duration) always gives the
+// current turn the full configured time, rather than counting down from
+// whenever the turn actually started, which could already be in the past
+// or even negative.
+func (g *Game) SetOptions(opts GameOptions) {
+	g.GameOptions = opts
+	g.RoundStartedAt = time.Now()
+	g.UpdatedAt = time.Now()
+}
+
 func (g *Game) StateID() string {
 	return fmt.Sprintf("%019d", g.UpdatedAt.UnixNano())
 }
