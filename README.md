@@ -1,5 +1,7 @@
 # Codenames
 
+> **Disclaimer:** I'm not a developer. Every change in this fork -- design, code, testing -- was written and implemented by [Claude Code](https://claude.com/claude-code).
+
 Codenames is a word-guessing game. Generated boards are shareable and sync. The board can be viewed either as a clue giver or a word guesser.
 
 This is a personal fork of [jbowens/horsepaste](https://github.com/jbowens/horsepaste), rebranded and extended for self-hosting. See [Fork changes](#fork-changes) below for everything that's different from upstream.
