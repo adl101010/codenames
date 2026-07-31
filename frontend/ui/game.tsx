@@ -475,7 +475,20 @@ export class Game extends React.Component {
                 onClick={(e) => this.guess(e, idx, w)}
               >
                 <div className="face-wrap">
-                  <div className="face back"></div>
+                  {/* Codenames players see every word at all times -- only
+                      the color underneath is secret until revealed. The
+                      back face still needs the word, just without color/
+                      team info, matching what "hidden-word" cells always
+                      showed before this flip structure existed. It's
+                      aria-hidden because the front face's word span
+                      already reports the correct accessible state
+                      (hidden vs. revealed) regardless of which face is
+                      visually facing forward. */}
+                  <div className="face back">
+                    <span className="word" aria-hidden="true">
+                      {w}
+                    </span>
+                  </div>
                   <div className="face front">{wordSpan}</div>
                 </div>
                 <div className="flash" aria-hidden="true"></div>
