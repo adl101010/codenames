@@ -674,7 +674,7 @@
      on the full-strength navy was low-contrast enough to be hard to
      read. Cluegiver view is untouched; it uses its own tint, not
      --navy directly. */
-  background-color: color-mix(in srgb, var(--navy) 80%, white);
+  background-color: color-mix(in srgb, var(--navy) 88%, white);
 }
 .cell.flip.black .face.front {
   /* Exception to the "text stays --ink" rule above: --ink on this
