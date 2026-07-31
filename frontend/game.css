@@ -43,24 +43,24 @@
   color: inherit;
 }
 
-/* Clue giver's word + number form, shown in the bottom mode-toggle row
-   until a clue has been given for the current turn. Sized up from the
-   rest of the row (font-size 0.8em) since this is the one control the
-   clue giver needs to read and hit accurately, unlike the informational
-   #clue-display it's replaced by afterwards. */
+/* Clue giver's word + number form, shown in its own row above the gear/
+   role-switch/next-game row until a clue has been given for the current
+   turn. Sized well above body text so it visibly reads as the clue
+   giver's one required action, unlike the informational #clue-display
+   it's replaced by afterwards. */
 #clue-form {
   display: flex;
   align-items: center;
   gap: 0.6em;
-  font-size: 1.4em;
+  font-size: 1.5em;
 }
 #clue-form input#clue-word {
   font-family: var(--mono);
   font-size: 1em;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding: 0.35em 0.5em;
-  width: 6.5em;
+  padding: 0.3em 0.5em;
+  width: 6em;
   background: var(--paper-2);
   color: var(--ink);
   border: 1px solid var(--ink);
@@ -68,7 +68,7 @@
 #clue-form select#clue-number {
   font-family: var(--mono);
   font-size: 1em;
-  padding: 0.35em 0.4em;
+  padding: 0.3em 0.35em;
   background: var(--paper-2);
   color: var(--ink);
   border: 1px solid var(--ink);
@@ -77,9 +77,9 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 0.75em;
+  font-size: 0.55em;
   font-weight: 700;
-  padding: 0.5em 0.8em;
+  padding: 0.6em 0.9em;
   background: var(--olive);
   color: var(--paper);
   border: 1px solid var(--olive);
@@ -98,7 +98,7 @@
    replaced. The player-facing copy in #status-line is left at the row's
    own size -- see the #status-line #clue-display override below. */
 #mode-toggle-clue #clue-display {
-  font-size: 1.3em;
+  font-size: 1.6em;
 }
 
 /* The active clue for the current turn (both views) once given, or a
@@ -268,24 +268,30 @@
   border-color: var(--ink);
 }
 
-#mode-toggle {
-  margin: 1.3em 0 0.5em;
+/* Clue giver's word/number form (or the given clue, once submitted) gets
+   its own full-width row directly above the gear/role-switch/next-game
+   row, centered across the whole 700px game view -- the same width
+   #status-line spans, so this lines up with the turn badge above it.
+   It needs that full width to itself: the row below's right-hand cluster
+   (gear + 13em role-switch + next-game button) is wide enough that a
+   form centered on the row's true midpoint while sharing that same row
+   would overlap it. Empty (and collapses to zero height) in player
+   view. */
+#mode-toggle-clue {
   display: flex;
+  justify-content: center;
+  margin-top: 1em;
+}
+
+#mode-toggle {
+  margin: 0.5em 0 0.5em;
+  display: flex;
+  justify-content: flex-end;
   align-items: center;
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.8em;
-}
-
-/* Clue giver's word/number form (or the given clue, once submitted) sits
-   in the middle of this row, in the space left of the gear/role-switch/
-   next-game cluster. Empty (and takes no visual space beyond flex:1) in
-   player view. */
-#mode-toggle-clue {
-  flex: 1;
-  display: flex;
-  justify-content: center;
 }
 
 #mode-toggle-right {

@@ -636,10 +636,10 @@ export class Game extends React.Component {
             );
           })}
         </div>
+        <div id="mode-toggle-clue">
+          {this.state.cluegiver && this.renderClueGiverArea()}
+        </div>
         <div id="mode-toggle">
-          <div id="mode-toggle-clue">
-            {this.state.cluegiver && this.renderClueGiverArea()}
-          </div>
           <div id="mode-toggle-right">
             <SettingsButton
               onClick={(e) => {
