@@ -669,7 +669,12 @@
   background-color: var(--brick);
 }
 .cell.flip.blue .face.front {
-  background-color: var(--navy);
+  /* Slightly lighter than --navy itself -- the player-view text on this
+     face stays --ink (black, see the .face.front rule above), and black
+     on the full-strength navy was low-contrast enough to be hard to
+     read. Cluegiver view is untouched; it uses its own tint, not
+     --navy directly. */
+  background-color: color-mix(in srgb, var(--navy) 80%, white);
 }
 .cell.flip.black .face.front {
   /* Exception to the "text stays --ink" rule above: --ink on this
