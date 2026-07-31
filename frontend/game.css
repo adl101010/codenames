@@ -148,6 +148,11 @@
   font-size: 1em;
   font-family: var(--mono);
   font-weight: 700;
+  /* font-weight: 700 alone reads as barely-bold in the monospace fallback
+     stack (ui-monospace/SFMono-Regular render 700 as a subtle step up
+     from regular) -- the stroke thickens the glyphs enough to actually
+     look bold at a glance. */
+  -webkit-text-stroke: 0.4px currentColor;
   opacity: 0.75;
 }
 
