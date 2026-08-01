@@ -1,6 +1,6 @@
 # Codenames
 
-> **Disclaimer:** I'm not a developer. Every change in this fork -- design, code, testing -- was written and implemented by [Claude Code](https://claude.com/claude-code).
+> **Disclaimer:** My background is in infrastructure, platform, and networking, not development. Every change in this fork -- design, code, testing -- was written and implemented by [Claude Code](https://claude.com/claude-code).
 
 Codenames is a word-guessing game. Generated boards are shareable and sync. The board can be viewed either as a clue giver or a word guesser.
 
