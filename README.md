@@ -8,7 +8,7 @@ This is a personal fork of [jbowens/horsepaste](https://github.com/jbowens/horse
 
 ## How I use this at parties
 
-This has replaced the physical board game for me, and it's worked great for game nights. Player view goes up on a TV so the board is big enough for everyone in the room to see and shout guesses at, not just the people sitting closest. Both teams' clue givers sit elsewhere in the room sharing an iPad on the clue giver view and effectively run the game from there -- entering clues, locking in their team's card picks, and manually ending the turn when they're done or want to skip the bonus guess. Everyone ends up actually playing, not just watching two people huddle over a board.
+This has replaced the physical board game for me, and it's worked great for game nights. Player view goes up on a TV so the board is big enough for everyone in the room to see and shout guesses at, not just the people sitting closest. Both teams' clue givers sit elsewhere in the room sharing an iPad on the clue giver view and effectively run the game from there -- entering clues, locking in their team's card picks, and manually ending the turn when they're done or want to skip the bonus guess. Everyone ends up actually playing, not just watching two people huddle over a board -- no more waiting for your turn to hunch over a table squinting at the cards.
 
 | Player view (TV) | Clue giver view (iPad) |
 | --- | --- |
