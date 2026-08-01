@@ -8,7 +8,7 @@ This is a personal fork of [jbowens/horsepaste](https://github.com/jbowens/horse
 
 ## How I use this at parties
 
-Player view goes up on a TV so everyone can see the board. Both teams' clue givers sit elsewhere in the room sharing an iPad on the clue giver view and effectively run the game from there -- entering clues, locking in their team's card picks, and manually ending the turn when they're done or want to skip the bonus guess.
+This has fully replaced the physical board game at parties -- no cards, no plastic key card, no one hunched over a table squinting at a grid. Player view goes up on a TV so the board is big enough for everyone in the room to see and shout guesses at, not just the people sitting closest. Both teams' clue givers sit elsewhere in the room sharing an iPad on the clue giver view and effectively run the game from there -- entering clues, locking in their team's card picks, and manually ending the turn when they're done or want to skip the bonus guess. Everyone ends up actually playing, not just watching two people huddle over a board.
 
 | Player view (TV) | Clue giver view (iPad) |
 | --- | --- |
