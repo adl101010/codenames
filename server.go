@@ -269,6 +269,38 @@ func (s *Server) handleSetOptions(rw http.ResponseWriter, req *http.Request) {
 	writeGame(rw, gh)
 }
 
+// handleToggleTimer flips the timer between paused and running -- one
+// endpoint rather than separate pause/resume ones, since the frontend
+// always knows the current state (it's part of the game object already)
+// and just wants to invert it with a single tap.
+func (s *Server) handleToggleTimer(rw http.ResponseWriter, req *http.Request) {
+	var request struct {
+		GameID string `json:"game_id"`
+	}
+
+	decoder := json.NewDecoder(req.Body)
+	if err := decoder.Decode(&request); err != nil {
+		http.Error(rw, "Error decoding", 400)
+		return
+	}
+
+	gh := s.getGame(request.GameID)
+	var err error
+	gh.update(func(g *Game) bool {
+		if g.TimerPaused {
+			err = g.ResumeTimer()
+		} else {
+			err = g.PauseTimer()
+		}
+		return err == nil
+	})
+	if err != nil {
+		http.Error(rw, err.Error(), 400)
+		return
+	}
+	writeGame(rw, gh)
+}
+
 func (s *Server) handleNextGame(rw http.ResponseWriter, req *http.Request) {
 	var request struct {
 		GameID          string   `json:"game_id"`
@@ -490,6 +522,7 @@ func (s *Server) Start(games map[string]*Game) error {
 	s.mux.HandleFunc("/guess", s.handleGuess)
 	s.mux.HandleFunc("/set-clue", s.handleSetClue)
 	s.mux.HandleFunc("/set-options", s.handleSetOptions)
+	s.mux.HandleFunc("/toggle-timer", s.handleToggleTimer)
 	s.mux.HandleFunc("/game-state", s.handleGameState)
 	s.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("frontend/dist"))))
 	s.mux.HandleFunc("/", s.handleIndex)

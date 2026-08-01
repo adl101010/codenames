@@ -392,6 +392,19 @@ export class Game extends React.Component {
       });
   }
 
+  // Clue giver only -- the whole timer pill is the button (see render()),
+  // one endpoint flips whichever state it's currently in.
+  public toggleTimerPause(e) {
+    e.preventDefault();
+    axios
+      .post('/toggle-timer', {
+        game_id: this.state.game.id,
+      })
+      .then(({ data }) => {
+        this.setState({ game: data });
+      });
+  }
+
   // The clue/number display that sits where the timer used to (see
   // render()). Cluegiver-only clue-entry form when no clue has been given
   // yet for this turn; otherwise the active clue for both views, swapping
@@ -556,18 +569,60 @@ export class Game extends React.Component {
       );
     }
 
-    const timer = !!this.state.game.timer_duration_ms && (
-      <div id="timer">
-        <Timer
-          roundStartedAt={this.state.game.round_started_at}
-          timerDurationMs={this.state.game.timer_duration_ms}
-          handleExpiration={() => {
-            this.state.game.enforce_timer && this.endTurn();
-          }}
-          freezeTimer={!!this.state.game.winning_team}
-        />
-      </div>
+    // Pausing is a paused countdown, not paused turn logic -- Guess/
+    // NextTurn/etc. all still work normally while paused. freezeTimer
+    // just stops Timer's own tick loop (the same mechanism already used
+    // to freeze the display once the game's won), so a paused timer
+    // simply stops counting down wherever it was.
+    const timerFrozen =
+      !!this.state.game.winning_team || !!this.state.game.timer_paused;
+    const timerReadout = (
+      <Timer
+        roundStartedAt={this.state.game.round_started_at}
+        timerDurationMs={this.state.game.timer_duration_ms}
+        handleExpiration={() => {
+          this.state.game.enforce_timer && this.endTurn();
+        }}
+        freezeTimer={timerFrozen}
+      />
     );
+
+    // The pill-shaped look is the same in both views (see #timer in
+    // game.css), but only the clue giver can actually control it -- for
+    // players it's just a styled readout, an inert div with no button
+    // or icon, so it doesn't look like something they can tap.
+    let timer = null;
+    if (!!this.state.game.timer_duration_ms && !this.state.game.winning_team && this.state.cluegiver) {
+      timer = (
+        <button
+          type="button"
+          id="timer"
+          className={this.state.game.timer_paused ? 'paused' : ''}
+          onClick={(e) => this.toggleTimerPause(e)}
+          aria-label={this.state.game.timer_paused ? 'Resume timer' : 'Pause timer'}
+        >
+          {timerReadout}
+          <span className="timer-icon" aria-hidden="true">
+            {this.state.game.timer_paused ? (
+              <svg viewBox="0 0 16 16" fill="currentColor">
+                <polygon points="4,3 13,8 4,13" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 16 16" fill="currentColor">
+                <rect x="4" y="3" width="3" height="10" />
+                <rect x="9" y="3" width="3" height="10" />
+              </svg>
+            )}
+          </span>
+        </button>
+      );
+    } else if (!!this.state.game.timer_duration_ms) {
+      timer = (
+        <div id="timer" className={this.state.game.timer_paused ? 'paused' : ''}>
+          {timerReadout}
+        </div>
+      );
+    }
 
     return (
       <div

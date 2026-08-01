@@ -160,6 +160,17 @@ type Game struct {
 	Words          []string  `json:"words"`
 	Layout         []Team    `json:"layout"`
 	RoundStartedAt time.Time `json:"round_started_at,omitempty"`
+	// TimerPaused is per-turn state, not a GameOptions setting -- it
+	// resets to false on every turn transition (see resetClueState),
+	// same as the clue. No omitempty: found via a real bug earlier that
+	// omitempty on a bool/string silently drops the JSON key once it's
+	// the zero value, rather than serializing false/"" -- harmless to
+	// this specific frontend today, but not worth risking again.
+	TimerPaused bool `json:"timer_paused"`
+	// pausedAt is unexported (never serialized) -- only needed
+	// server-side, to compute how long the timer was paused for when
+	// it's resumed. See PauseTimer/ResumeTimer.
+	pausedAt time.Time
 	GameOptions
 }
 
@@ -178,7 +189,47 @@ type GameOptions struct {
 func (g *Game) SetOptions(opts GameOptions) {
 	g.GameOptions = opts
 	g.RoundStartedAt = time.Now()
+	g.TimerPaused = false
 	g.UpdatedAt = time.Now()
+}
+
+// PauseTimer freezes the current turn's countdown. The clue giver is the
+// only one who can call this (enforced by the frontend not rendering the
+// control for players); Guess/NextTurn/etc. are unaffected by a paused
+// timer -- pausing only stops the clock's own display and expiration,
+// nothing about turn logic.
+func (g *Game) PauseTimer() error {
+	if g.WinningTeam != nil {
+		return errors.New("game is already over")
+	}
+	if g.TimerDurationMS <= 0 {
+		return errors.New("timer is not enabled")
+	}
+	if g.TimerPaused {
+		return errors.New("timer is already paused")
+	}
+	g.TimerPaused = true
+	g.pausedAt = time.Now()
+	g.UpdatedAt = time.Now()
+	return nil
+}
+
+// ResumeTimer unpauses the timer. Rather than tracking a separate
+// "remaining time" number, it shifts RoundStartedAt forward by exactly
+// how long the timer was paused -- the existing countdown math
+// (endTime = roundStartedAt + timerDurationMs) then naturally picks back
+// up with the same remaining time it had at the moment of the pause.
+func (g *Game) ResumeTimer() error {
+	if g.WinningTeam != nil {
+		return errors.New("game is already over")
+	}
+	if !g.TimerPaused {
+		return errors.New("timer is not paused")
+	}
+	g.RoundStartedAt = g.RoundStartedAt.Add(time.Since(g.pausedAt))
+	g.TimerPaused = false
+	g.UpdatedAt = time.Now()
+	return nil
 }
 
 func (g *Game) StateID() string {
@@ -227,12 +278,14 @@ func (g *Game) NextTurn(currentTurn int) bool {
 	return true
 }
 
-// resetClueState clears the current turn's clue so the next clue giver
-// starts with a blank slate. Called everywhere Round is incremented.
+// resetClueState clears the current turn's clue (and unpauses the timer)
+// so the next clue giver starts with a blank slate and a running clock.
+// Called everywhere Round is incremented.
 func (g *Game) resetClueState() {
 	g.Clue = ""
 	g.ClueNumber = 0
 	g.CorrectGuesses = 0
+	g.TimerPaused = false
 }
 
 // SetClue records the current turn's clue and number. Only valid once per
