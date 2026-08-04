@@ -36,55 +36,113 @@ export function unlock() {
   }
 }
 
-// One key strike: a short burst of noise (the mechanical clack) layered
-// with a low thud (the key bottoming out).
+// Everything is routed through a lowpass on the way out rather than
+// straight to the destination. Without it the strike's opening
+// transient runs unbounded up to ~20kHz, which is what made an earlier
+// version sting after a few clues -- a real typebar has no energy up
+// there. Applied to the bell too, so it doesn't end up the one sharp
+// thing left.
+const ROLLOFF_HZ = 7000;
+
+function toneOut(ac: AudioContext): BiquadFilterNode {
+  const lp = ac.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = ROLLOFF_HZ;
+  lp.Q.value = 0.7;
+  lp.connect(ac.destination);
+  return lp;
+}
+
+// A short burst of filtered noise, shaped by a fast decay envelope.
+function noiseBurst(
+  ac: AudioContext,
+  out: AudioNode,
+  now: number,
+  opts: {
+    duration: number;
+    type: BiquadFilterType;
+    frequency: number;
+    q: number;
+    peak: number;
+    decay: number;
+  }
+) {
+  const buffer = ac.createBuffer(
+    1,
+    Math.max(1, Math.floor(ac.sampleRate * opts.duration)),
+    ac.sampleRate
+  );
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i++) {
+    data[i] = Math.random() * 2 - 1;
+  }
+  const source = ac.createBufferSource();
+  source.buffer = buffer;
+
+  const filter = ac.createBiquadFilter();
+  filter.type = opts.type;
+  filter.frequency.value = opts.frequency;
+  filter.Q.value = opts.q;
+
+  const gain = ac.createGain();
+  gain.gain.setValueAtTime(opts.peak, now);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + opts.decay);
+
+  source.connect(filter);
+  filter.connect(gain);
+  gain.connect(out);
+  source.start(now);
+  source.stop(now + opts.duration);
+}
+
+// One key strike: a typebar slapping the platen. Three layers -- a hard
+// transient at the moment of contact, the mid-range body of the strike,
+// and a low thump as the key bottoms out.
 export function playKeyClack() {
   const ac = audioContext();
   if (!ac || ac.state === 'suspended') {
     return;
   }
   const now = ac.currentTime;
+  const out = toneOut(ac);
 
-  // The clack itself -- white noise, band-passed so it reads as a
-  // sharp mechanical tick rather than a hiss, with a very fast decay.
-  const noiseLength = 0.03;
-  const buffer = ac.createBuffer(1, ac.sampleRate * noiseLength, ac.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < data.length; i++) {
-    data[i] = Math.random() * 2 - 1;
-  }
-  const noise = ac.createBufferSource();
-  noise.buffer = buffer;
+  // The contact transient. Bandpassed rather than highpassed so it's
+  // bounded on top -- this is the layer that gives the strike its snap,
+  // and also the one that turns harsh if it's left to run free.
+  noiseBurst(ac, out, now, {
+    duration: 0.008,
+    type: 'bandpass',
+    frequency: 2600,
+    q: 1.1,
+    peak: 0.24,
+    decay: 0.008,
+  });
 
-  const bandpass = ac.createBiquadFilter();
-  bandpass.type = 'bandpass';
-  // Jitter the center frequency per strike so repeated keys don't sound
-  // identical -- real typebars don't.
-  bandpass.frequency.value = 1800 + Math.random() * 1200;
-  bandpass.Q.value = 1.2;
+  // The body of the strike. Jittered per keystroke so a long clue
+  // doesn't sound like one sample looped -- real typebars don't repeat.
+  noiseBurst(ac, out, now, {
+    duration: 0.05,
+    type: 'bandpass',
+    frequency: 850 + Math.random() * 300,
+    q: 1.8,
+    peak: 0.5,
+    decay: 0.04,
+  });
 
-  const noiseGain = ac.createGain();
-  noiseGain.gain.setValueAtTime(0.22, now);
-  noiseGain.gain.exponentialRampToValueAtTime(0.001, now + noiseLength);
-
-  noise.connect(bandpass);
-  bandpass.connect(noiseGain);
-  noiseGain.connect(ac.destination);
-  noise.start(now);
-  noise.stop(now + noiseLength);
-
-  // The thud -- a very short low sine, giving the clack some body so it
-  // doesn't sound thin on TV speakers.
-  const thud = ac.createOscillator();
-  thud.type = 'sine';
-  thud.frequency.setValueAtTime(120 + Math.random() * 40, now);
-  const thudGain = ac.createGain();
-  thudGain.gain.setValueAtTime(0.14, now);
-  thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-  thud.connect(thudGain);
-  thudGain.connect(ac.destination);
-  thud.start(now);
-  thud.stop(now + 0.05);
+  // The key bottoming out -- a short pitch drop, giving the strike
+  // weight so it doesn't sound thin on TV speakers.
+  const thump = ac.createOscillator();
+  thump.type = 'sine';
+  const thumpFrom = 150 + Math.random() * 30;
+  thump.frequency.setValueAtTime(thumpFrom, now);
+  thump.frequency.exponentialRampToValueAtTime(80, now + 0.05);
+  const thumpGain = ac.createGain();
+  thumpGain.gain.setValueAtTime(0.34, now);
+  thumpGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+  thump.connect(thumpGain);
+  thumpGain.connect(out);
+  thump.start(now);
+  thump.stop(now + 0.05);
 }
 
 // The carriage-return bell, played once the whole clue has finished
@@ -96,11 +154,12 @@ export function playBell() {
     return;
   }
   const now = ac.currentTime;
+  const out = toneOut(ac);
   const gain = ac.createGain();
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.13, now + 0.005);
+  gain.gain.exponentialRampToValueAtTime(0.14, now + 0.005);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
-  gain.connect(ac.destination);
+  gain.connect(out);
 
   [1050, 1575].forEach((freq) => {
     const osc = ac.createOscillator();
