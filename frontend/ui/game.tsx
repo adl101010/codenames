@@ -3,7 +3,13 @@ import axios from 'axios';
 import { Settings, SettingsButton, SettingsPanel } from '~/ui/settings';
 import Timer from '~/ui/timer';
 import TimerSettings from '~/ui/timer_settings';
+import { playKeyClack, playBell, unlock as unlockAudio } from '~/ui/sound';
 import { computeWordSet } from '~/wordset';
+
+// How long each character of a clue takes to type out in player view.
+// Fast enough not to hold up the game, slow enough that the individual
+// key clacks stay distinct rather than blurring into a buzz.
+const TYPE_INTERVAL_MS = 90;
 
 const defaultFavicon =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAA8SURBVHgB7dHBDQAgCAPA1oVkBWdzPR84kW4AD0LCg36bXJqUcLL2eVY/EEwDFQBeEfPnqUpkLmigAvABK38Grs5TfaMAAAAASUVORK5CYII=';
@@ -30,7 +36,60 @@ export class Game extends React.Component {
       // instant a card is detected transitioning from hidden to
       // revealed -- see computeRevealAnimationUpdates.
       revealAnimations: {},
+      // Tracks the clue currently being typed out in player view.
+      // `clue` is the exact string being animated (so a stale animation
+      // can't apply itself to a newer clue), `chars` is how much of it
+      // is on screen, `done` flips once the whole thing has landed.
+      typewriter: { clue: null, chars: 0, done: false },
     };
+    this.typewriterTimer = null;
+    this.unlockAudio = this.unlockAudio.bind(this);
+  }
+
+  // Browsers won't play audio until the page has seen a real user
+  // gesture, and players learn about a new clue from polling rather
+  // than from a click of their own -- so the first clue on a freshly
+  // opened tab could otherwise be silent. Any click anywhere unlocks
+  // it for the rest of the page's life.
+  public unlockAudio() {
+    unlockAudio();
+  }
+
+  private clearTypewriter() {
+    if (this.typewriterTimer) {
+      clearInterval(this.typewriterTimer);
+      this.typewriterTimer = null;
+    }
+  }
+
+  // Types a newly-given clue out one character at a time in player
+  // view, clacking per keystroke and ringing the carriage bell once it
+  // lands. Sound is skipped (but the visual typing still runs) when the
+  // Sound setting is off.
+  private startTypewriter(clue) {
+    this.clearTypewriter();
+    const withSound = !!this.state.settings.sound;
+    this.setState({ typewriter: { clue, chars: 0, done: false } });
+
+    let typed = 0;
+    this.typewriterTimer = setInterval(() => {
+      typed++;
+      const done = typed >= clue.length;
+      this.setState({
+        typewriter: { clue, chars: Math.min(typed, clue.length), done },
+      });
+      if (withSound) {
+        playKeyClack();
+      }
+      if (done) {
+        this.clearTypewriter();
+        if (withSound) {
+          // Short beat after the last keystroke, the way a real
+          // carriage bell trails the end of the line.
+          setTimeout(() => playBell(), 180);
+        }
+      }
+    }, TYPE_INTERVAL_MS);
   }
 
   public extraClasses() {
@@ -49,12 +108,17 @@ export class Game extends React.Component {
 
   public componentDidMount(prevProps, prevState) {
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
+    window.addEventListener('click', this.unlockAudio);
+    window.addEventListener('touchstart', this.unlockAudio);
     this.setTurnIndicatorFavicon(prevProps, prevState);
     this.refresh();
   }
 
   public componentWillUnmount() {
     window.removeEventListener('keydown', this.handleKeyDown.bind(this));
+    window.removeEventListener('click', this.unlockAudio);
+    window.removeEventListener('touchstart', this.unlockAudio);
+    this.clearTypewriter();
     document.getElementById('favicon').setAttribute('href', defaultFavicon);
     this.setState({ mounted: false });
   }
@@ -172,6 +236,16 @@ export class Game extends React.Component {
         state_id: state_id,
       })
       .then(({ data }) => {
+        // A clue that wasn't there on the last poll is one that was just
+        // given, so it's the one to type out. Detected here rather than
+        // in componentDidUpdate so it can't briefly render the finished
+        // clue before the animation takes over. Only players see the
+        // typing -- the clue giver typed it themselves a second ago.
+        const previousClue = this.state.game && this.state.game.clue;
+        if (!this.state.cluegiver && data.clue && data.clue !== previousClue) {
+          this.startTypewriter(data.clue);
+        }
+
         this.setState((oldState) => {
           const stateToUpdate = { game: data };
           if (oldState.game && data.created_at != oldState.game.created_at) {
@@ -428,10 +502,23 @@ export class Game extends React.Component {
       );
     }
 
+    // Mid-typewriter, show only what's been "typed" so far and hold the
+    // number back until the end -- it lands with the carriage bell.
+    // Falls through to the finished clue for the clue giver, for a clue
+    // that was already on screen before this view loaded, and once the
+    // animation completes.
+    const tw = this.state.typewriter;
+    const typing = tw.clue === game.clue && !tw.done;
+
     return (
       <div id="clue-display">
-        <span className="clue-word">{game.clue}</span>
-        <span className={'clue-number ' + this.currentTeam()}>
+        <span className={'clue-word' + (typing ? ' typing' : '')}>
+          {typing ? game.clue.slice(0, tw.chars) : game.clue}
+        </span>
+        <span
+          className={'clue-number ' + this.currentTeam()}
+          style={typing ? { visibility: 'hidden' } : undefined}
+        >
           {game.clue_number === 0 ? '∞' : game.clue_number}
         </span>
       </div>

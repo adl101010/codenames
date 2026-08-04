@@ -117,6 +117,24 @@
   font-weight: 700;
   font-size: 1.1em;
 }
+/* Caret that trails the clue while it's typing itself out in player
+   view (see startTypewriter in game.tsx). Drawn as ::after content so
+   it takes no layout space of its own once typing finishes and the
+   class comes off. */
+#clue-display .clue-word.typing::after {
+  content: '_';
+  animation: caret-blink 0.6s steps(1, end) infinite;
+}
+@keyframes caret-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
 #clue-display .clue-number {
   display: inline-flex;
   align-items: center;

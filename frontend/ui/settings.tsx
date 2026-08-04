@@ -13,6 +13,11 @@ const settingToggles = [
     desc:
       'Include mature (Deep Undercover) words in future games. Off by default.',
   },
+  {
+    name: 'Sound',
+    setting: 'sound',
+    desc: 'Typewriter clacks as a new clue types out on the player view.',
+  },
 ];
 
 // Defaults applied when a setting has never been explicitly saved --
@@ -20,6 +25,7 @@ const settingToggles = [
 // (on or off) always wins over these.
 const defaultSettings = {
   fullscreen: true,
+  sound: true,
 };
 
 export class Settings {
