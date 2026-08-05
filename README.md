@@ -25,6 +25,7 @@ Everything below is specific to this fork; none of it exists upstream.
 - **Real clue-giving mechanics** — clue word + number, with a confirmation step, guess quota, one bonus guess, and instant turn-ending on a wrong guess or the black card.
 - **Roles are enforced** — only the clue giver can pick cards or end a turn; players just watch, with a 3D flip animation revealing each card.
 - **A live, pausable timer** — turn on mid-game from the settings menu (not just at creation), and the clue giver can pause/resume it anytime.
+- **Typewriter clue reveal** — a new clue types itself out on the player view with mechanical key-click sounds, muteable in settings.
 - **Mature word filter** — off by default, capped at 4 mature words per board when enabled.
 - **Bigger word bank** — English-only, with Valorant, CS2, and WoW words mixed in.
 
