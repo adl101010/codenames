@@ -459,8 +459,8 @@ export class Game extends React.Component {
   // Checks or unchecks a word bank for the *next* game. Purely a local
   // preference, like the toggles above -- startNextGame reads it back
   // through computeWordSet, so a game already in progress keeps the
-  // words it was dealt. toggleBank refuses to uncheck the last
-  // non-mature bank, so the selection is always one the server can deal.
+  // words it was dealt. toggleBank refuses to uncheck the only checked
+  // bank, so there's always something to deal from.
   public toggleWordBank(id) {
     const vals = {
       ...this.state.settings,

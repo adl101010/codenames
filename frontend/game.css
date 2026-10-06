@@ -976,7 +976,7 @@ button#timer:hover .timer-icon {
 /* Word bank checklist: the next game is dealt from every checked bank.
    Each row is one big button, so the whole row is the tap target on the
    iPad -- not just the box. Checked rows go solid-bordered and lighter;
-   a "locked" row (the last non-mature bank) stays checked and just
+   a "locked" row (the only checked bank) stays checked and just
    ignores taps. */
 .bank-checklist {
   margin: 1.6em 1em;

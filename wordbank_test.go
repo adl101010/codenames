@@ -171,14 +171,16 @@ func comboPool(t *testing.T, banks map[string][]string, mask int) (label string,
 	return label, canonicalBank(t, label, words), hasNonMature
 }
 
-// TestEveryLegalBankComboRespectsTheMatureCap runs every combination of
-// checked banks the checklist allows and deals boards from the combined
-// pool: each must be a full valid deal, and none may hold more than
-// maxMatureWords mature words -- including combinations like Holiday +
-// Mature, where the swap-in words come from a pool of only 98 non-mature
-// words, and where CANDLE and TOY count as mature even though they're
-// also holiday words.
-func TestEveryLegalBankComboRespectsTheMatureCap(t *testing.T) {
+// TestEveryBankComboDealsValidBoards runs every non-empty combination of
+// checked banks the checklist allows -- all 7 -- and deals boards from the
+// combined pool. Each must be a full valid deal. Whenever Mature is mixed
+// with something else it must also respect the cap (no more than
+// maxMatureWords mature words), including Holiday + Mature, where the
+// swap-in words come from a pool of only 98 non-mature words, and where
+// CANDLE and TOY count as mature even though they're also holiday words.
+// Mature on its own is covered separately below: there's nothing to swap
+// in, so the cap can't apply.
+func TestEveryBankComboDealsValidBoards(t *testing.T) {
 	saved := matureWords
 	defer func() { matureWords = saved }()
 	if err := loadMatureWords("assets/mature.txt"); err != nil {
@@ -186,18 +188,18 @@ func TestEveryLegalBankComboRespectsTheMatureCap(t *testing.T) {
 	}
 	banks := loadWordBanks(t)
 
-	legal := 0
+	tested := 0
 	for mask := 1; mask < 1<<uint(len(bankKeys)); mask++ {
 		label, pool, hasNonMature := comboPool(t, banks, mask)
-		if !hasNonMature {
-			continue // Mature alone isn't selectable -- see the test below.
-		}
-		legal++
+		tested++
 
 		for trial := 0; trial < 150; trial++ {
 			g := newGame("combo-"+label, randomState(pool), GameOptions{})
 			assertDealtFromBank(t, label, g, pool)
 
+			if !hasNonMature {
+				continue // mature-only: see TestMatureAloneDealsAFullMatureBoard
+			}
 			var mature int
 			for _, w := range g.Words {
 				if matureWords[w] {
@@ -210,19 +212,20 @@ func TestEveryLegalBankComboRespectsTheMatureCap(t *testing.T) {
 			}
 		}
 	}
-	if legal != 6 {
-		t.Errorf("tested %d bank combinations, expected the 6 that include a non-mature bank", legal)
+	if tested != 7 {
+		t.Errorf("tested %d bank combinations, expected all 7", tested)
 	}
 }
 
-// TestMatureAloneCannotHonorTheCap is a tripwire, not a feature test.
-// The cap works by swapping excess mature words for non-mature ones from
-// the same pool; with Mature as the only bank there's nothing to swap
-// in, so the board comes out entirely mature. That's why the frontend's
-// checklist never lets Mature be checked alone (REQUIRES_COMPANION in
-// frontend/wordset.ts). If the server ever learns to handle this case,
-// this test will fail -- the cue to reconsider that frontend rule.
-func TestMatureAloneCannotHonorTheCap(t *testing.T) {
+// TestMatureAloneDealsAFullMatureBoard pins down what ticking only Mature
+// means. The cap works by swapping excess mature words for non-mature ones
+// from the same pool; with Mature as the only bank there's nothing to
+// swap in, so the cap has nothing to act on and the board is simply 25
+// mature words -- which is what choosing only that bank asks for. (The
+// frontend used to forbid this selection; it no longer does, see
+// frontend/wordset.ts.) The point of the test is that it deals a normal
+// full board rather than failing or coming up short.
+func TestMatureAloneDealsAFullMatureBoard(t *testing.T) {
 	saved := matureWords
 	defer func() { matureWords = saved }()
 	if err := loadMatureWords("assets/mature.txt"); err != nil {
@@ -230,15 +233,14 @@ func TestMatureAloneCannotHonorTheCap(t *testing.T) {
 	}
 
 	pool := canonicalBank(t, "mature", loadWordBanks(t)["English (Mature)"])
-	g := newGame("mature-only", randomState(pool), GameOptions{})
+	for trial := 0; trial < 100; trial++ {
+		g := newGame("mature-only", randomState(pool), GameOptions{})
+		assertDealtFromBank(t, "mature", g, pool)
 
-	var mature int
-	for _, w := range g.Words {
-		if matureWords[w] {
-			mature++
+		for _, w := range g.Words {
+			if !matureWords[w] {
+				t.Fatalf("trial %d: a mature-only board contains %q, which isn't a mature word", trial, w)
+			}
 		}
-	}
-	if mature <= maxMatureWords {
-		t.Errorf("a mature-only board held just %d mature words; the server now enforces the cap even alone, so the frontend's Mature-needs-a-companion rule may be unnecessary", mature)
 	}
 }

@@ -15,7 +15,11 @@ export const WORD_BANKS = [
   {
     id: 'mature',
     name: 'Mature',
-    desc: 'Deep Undercover words, capped at 4 per board. Needs another bank checked.',
+    // Mixed with another bank the server caps it at 4 mature words per
+    // board (see capMatureWords in game.go). With nothing to swap in
+    // there's nothing to cap, so on its own every word is mature -- say so
+    // up front rather than let it be a surprise on the TV.
+    desc: 'Deep Undercover words. Capped at 4 per board when mixed with another bank; on its own, every word is mature.',
     words: OriginalWords['English (Mature)'],
   },
   {
@@ -28,26 +32,16 @@ export const WORD_BANKS = [
 
 export const DEFAULT_WORD_BANKS = ['standard'];
 
-// The server holds a board to at most 4 mature words by swapping the
-// excess for non-mature words from the same pool. That only works if
-// there are non-mature words in the pool, so Mature can never be the
-// only checked bank -- otherwise the board would be 25 mature words.
-const REQUIRES_COMPANION = 'mature';
-
 const KNOWN_IDS = WORD_BANKS.map((b) => b.id);
 
-// Cleans up whatever's stored: drops unknown ids, puts the rest in
-// registry order, and guarantees a legal selection (never empty, never
-// Mature alone) by falling back to adding Standard.
+// Cleans up whatever's stored: drops unknown ids and puts the rest in
+// registry order. The one rule is that a game needs at least one bank to
+// deal from, so an empty (or entirely unrecognised) selection falls back
+// to Standard.
 export function normalizeBanks(selected) {
   const ids = Array.isArray(selected) ? selected : [];
   const kept = KNOWN_IDS.filter((id) => ids.indexOf(id) !== -1);
-  if (!kept.some((id) => id !== REQUIRES_COMPANION)) {
-    return KNOWN_IDS.filter(
-      (id) => id === 'standard' || kept.indexOf(id) !== -1
-    );
-  }
-  return kept;
+  return kept.length ? kept : DEFAULT_WORD_BANKS.slice();
 }
 
 // Settings saved before the checklist existed stored two separate
@@ -66,18 +60,15 @@ export function banksFromStored(stored) {
   );
 }
 
-// Whether unchecking `id` would leave an illegal selection. The last
-// non-mature bank is the one that gets locked.
+// Whether unchecking `id` would leave nothing selected -- i.e. it's the
+// only bank checked, which the checklist shows as locked.
 export function isLocked(selected, id) {
-  if (selected.indexOf(id) === -1) {
-    return false;
-  }
-  const rest = selected.filter((b) => b !== id);
-  return !rest.some((b) => b !== REQUIRES_COMPANION);
+  return selected.length === 1 && selected[0] === id;
 }
 
-// The selection after the user taps `id`. Unchecking the locked bank is
-// a no-op rather than an error -- the checklist shows it as locked.
+// The selection after the user taps `id`. Unchecking the only checked
+// bank is a no-op rather than an error -- the checklist shows it as
+// locked.
 export function toggleBank(selected, id) {
   if (isLocked(selected, id)) {
     return selected;

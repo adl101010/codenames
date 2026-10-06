@@ -28,7 +28,7 @@ const WordBankChecklist: React.FunctionalComponent<WordBankChecklistProps> = ({
       </div>
       {WORD_BANKS.map((bank) => {
         const checked = selected.indexOf(bank.id) !== -1;
-        // The last non-mature bank can't be unchecked -- see wordset.ts.
+        // The only checked bank can't be unchecked -- see wordset.ts.
         const locked = isLocked(selected, bank.id);
         return (
           <button

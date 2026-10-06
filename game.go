@@ -447,9 +447,15 @@ func newGame(id string, state GameState, opts GameOptions) *Game {
 // mature words survive the cap still land on red, blue, black or neutral
 // at random, with no extra work needed here.
 //
-// When the mature set isn't in play (the Mature setting off, so the client
-// sends a safe-only pool) nothing on the board is mature and this is a
-// no-op.
+// When the mature set isn't in play (the Mature bank unchecked, so the
+// client sends a safe-only pool) nothing on the board is mature and this is
+// a no-op.
+//
+// It's equally a no-op in effect when the pool has no non-mature words to
+// swap in -- i.e. Mature is the only bank checked. The cap can't be met
+// there, so the excess is left as dealt and the board is entirely mature,
+// which is what asking for only that bank means. See the "pool exhausted"
+// return below.
 func capMatureWords(words []string, pool []string, rnd *rand.Rand) {
 	if len(matureWords) == 0 {
 		return

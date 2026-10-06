@@ -27,7 +27,7 @@ Everything below is specific to this fork; none of it exists upstream.
 - **A live, pausable timer** — turn on mid-game from the settings menu (not just at creation), and the clue giver can pause/resume it anytime.
 - **Typewriter clue reveal** — a new clue types itself out on the player view with mechanical key-click sounds, muteable in settings.
 - **Holiday themes** — pick Snowfall, Evergreen Lights, Fireside, or New Year's Eve from Settings and every screen at the table switches together, TV and iPad alike. The choice is saved with the game, so it survives "Next game" and restarts.
-- **Word bank checklist** — tick any mix of Standard, Mature, and Holiday in settings and the next game is dealt from all of them combined. Holiday is a hand-curated 100-word bank covering Thanksgiving through New Year's; Mature words are capped at 4 per board.
+- **Word bank checklist** — tick any mix of Standard, Mature, and Holiday in settings and the next game is dealt from all of them combined. Holiday is a hand-curated 100-word bank covering Thanksgiving through New Year's. Mixed with another bank, Mature words are capped at 4 per board; on its own, every word is mature.
 
 ### Visual design
 
