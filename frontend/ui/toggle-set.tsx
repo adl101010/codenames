@@ -9,23 +9,15 @@ interface ToggleSetProps {
   };
   values: any;
   handleToggle: any;
-  // Greys the row out without disabling it -- for a setting that's
-  // currently moot (e.g. Mature while the Holiday bank is selected) but
-  // should still be visible, and still remembered if switched.
-  dimmed?: boolean;
 }
 
 const ToggleSet: React.FunctionalComponent<ToggleSetProps> = ({
   toggle,
   values,
   handleToggle,
-  dimmed,
 }) => {
   return (
-    <div
-      className={'toggle-set' + (dimmed ? ' dimmed' : '')}
-      key={toggle.setting}
-    >
+    <div className="toggle-set" key={toggle.setting}>
       <div className="settings-label">
         {toggle.name}{' '}
         <span className={'toggle-state'}>

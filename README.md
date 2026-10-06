@@ -26,8 +26,7 @@ Everything below is specific to this fork; none of it exists upstream.
 - **Roles are enforced** — only the clue giver can pick cards or end a turn; players just watch, with a 3D flip animation revealing each card.
 - **A live, pausable timer** — turn on mid-game from the settings menu (not just at creation), and the clue giver can pause/resume it anytime.
 - **Typewriter clue reveal** — a new clue types itself out on the player view with mechanical key-click sounds, muteable in settings.
-- **Mature word filter** — off by default, capped at 4 mature words per board when enabled.
-- **Selectable word banks** — pick what the next game is dealt from in settings: the Standard bank (English-only, with Valorant, CS2, and WoW words mixed in) or a Holiday bank for seasonal game nights.
+- **Word bank checklist** — tick any mix of Standard, Mature, and Holiday in settings and the next game is dealt from all of them combined. Mature words are capped at 4 per board.
 
 ### Visual design
 

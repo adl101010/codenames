@@ -1,22 +1,13 @@
 import * as React from 'react';
 import ToggleSet from '~/ui/toggle-set';
-import WordBankSelect from '~/ui/word-bank-select';
-import { DEFAULT_WORD_BANK } from '~/wordset';
+import WordBankChecklist from '~/ui/word-bank-checklist';
+import { banksFromStored, computeWordSet } from '~/wordset';
 
 const settingToggles = [
   {
     name: 'Full-screen',
     setting: 'fullscreen',
     desc: 'Enlarge the board to take up the whole page.',
-  },
-  {
-    name: 'Mature',
-    setting: 'matureWords',
-    desc:
-      'Include mature (Deep Undercover) words in future games. Off by default.',
-    // Mixes into the Standard bank only; moot while another bank is picked.
-    standardOnly: true,
-    standardOnlyDesc: 'Only applies to the Standard word bank.',
   },
   {
     name: 'Sound',
@@ -31,18 +22,25 @@ const settingToggles = [
 const defaultSettings = {
   fullscreen: true,
   sound: true,
-  wordBank: DEFAULT_WORD_BANK,
 };
 
 export class Settings {
   static load() {
+    let stored = {};
     try {
-      const settingsBlob = localStorage.getItem('settings');
-      return { ...defaultSettings, ...(JSON.parse(settingsBlob) || {}) };
+      stored = JSON.parse(localStorage.getItem('settings')) || {};
     } catch (e) {
       console.error(e);
-      return { ...defaultSettings };
     }
+    const settings = { ...defaultSettings, ...stored };
+    // Word banks are a checklist now. Settings saved before that stored
+    // an exclusive `wordBank` plus a separate `matureWords` toggle --
+    // translate those once here, and drop them so the next save
+    // doesn't carry the old keys around forever.
+    settings.wordBanks = banksFromStored(stored);
+    delete settings.wordBank;
+    delete settings.matureWords;
+    return settings;
   }
 
   static save(vals) {
@@ -115,30 +113,19 @@ export class SettingsPanel extends React.Component {
         <div className="settings-content">
           <h2>SETTINGS</h2>
           <div className="toggles">
-            <WordBankSelect
-              value={this.props.values.wordBank}
-              handleSelect={this.props.selectWordBank}
+            <WordBankChecklist
+              selected={this.props.values.wordBanks}
+              poolSize={computeWordSet(this.props.values).length}
+              handleToggle={this.props.toggleWordBank}
             />
-            {settingToggles.map((toggle) => {
-              // A standard-bank-only setting (Mature) is greyed out, with
-              // its description swapped to say why, while another bank
-              // is selected -- otherwise it'd be a switch that visibly
-              // does nothing.
-              const moot =
-                toggle.standardOnly &&
-                this.props.values.wordBank !== DEFAULT_WORD_BANK;
-              return (
-                <ToggleSet
-                  key={toggle.name}
-                  values={this.props.values}
-                  toggle={
-                    moot ? { ...toggle, desc: toggle.standardOnlyDesc } : toggle
-                  }
-                  dimmed={moot}
-                  handleToggle={this.props.toggle}
-                />
-              );
-            })}
+            {settingToggles.map((toggle) => (
+              <ToggleSet
+                key={toggle.name}
+                values={this.props.values}
+                toggle={toggle}
+                handleToggle={this.props.toggle}
+              />
+            ))}
           </div>
           {this.props.children}
         </div>

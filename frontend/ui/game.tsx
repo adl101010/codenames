@@ -4,7 +4,7 @@ import { Settings, SettingsButton, SettingsPanel } from '~/ui/settings';
 import Timer from '~/ui/timer';
 import TimerSettings from '~/ui/timer_settings';
 import { playKeyClack, playBell, unlock as unlockAudio } from '~/ui/sound';
-import { computeWordSet } from '~/wordset';
+import { computeWordSet, toggleBank } from '~/wordset';
 
 // How long each character of a clue takes to type out in player view.
 // Fast enough not to hold up the game, slow enough that the individual
@@ -447,12 +447,16 @@ export class Game extends React.Component {
     Settings.save(vals);
   }
 
-  // Which word bank the *next* game is dealt from. Purely a local
+  // Checks or unchecks a word bank for the *next* game. Purely a local
   // preference, like the toggles above -- startNextGame reads it back
   // through computeWordSet, so a game already in progress keeps the
-  // words it was dealt.
-  public selectWordBank(id) {
-    const vals = { ...this.state.settings, wordBank: id };
+  // words it was dealt. toggleBank refuses to uncheck the last
+  // non-mature bank, so the selection is always one the server can deal.
+  public toggleWordBank(id) {
+    const vals = {
+      ...this.state.settings,
+      wordBanks: toggleBank(this.state.settings.wordBanks, id),
+    };
     this.setState({ settings: vals });
     Settings.save(vals);
   }
@@ -602,7 +606,7 @@ export class Game extends React.Component {
         <SettingsPanel
           toggleView={(e) => this.toggleSettingsView(e)}
           toggle={(e, setting) => this.toggleSetting(e, setting)}
-          selectWordBank={(id) => this.selectWordBank(id)}
+          toggleWordBank={(id) => this.toggleWordBank(id)}
           values={this.state.settings}
         >
           <TimerSettings
