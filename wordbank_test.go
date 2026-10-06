@@ -86,7 +86,7 @@ func TestEveryWordBankCanDealABoard(t *testing.T) {
 }
 
 // TestHolidayBankSurvivesRepeatedNextGames matters because the holiday
-// bank is small -- 75 words, so each board is a third of the whole deck.
+// bank is small -- 100 words, so each board is a quarter of the whole deck.
 // "Next game" walks PermIndex along the same shuffle, then reseeds once it
 // runs out; this plays far more games than the deck holds, to make sure
 // that hand-off never deals a short or invalid board or slices off the end.
@@ -175,7 +175,7 @@ func comboPool(t *testing.T, banks map[string][]string, mask int) (label string,
 // checked banks the checklist allows and deals boards from the combined
 // pool: each must be a full valid deal, and none may hold more than
 // maxMatureWords mature words -- including combinations like Holiday +
-// Mature, where the swap-in words come from a pool of only 73 non-mature
+// Mature, where the swap-in words come from a pool of only 98 non-mature
 // words, and where CANDLE and TOY count as mature even though they're
 // also holiday words.
 func TestEveryLegalBankComboRespectsTheMatureCap(t *testing.T) {
