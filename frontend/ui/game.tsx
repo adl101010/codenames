@@ -447,6 +447,16 @@ export class Game extends React.Component {
     Settings.save(vals);
   }
 
+  // Which word bank the *next* game is dealt from. Purely a local
+  // preference, like the toggles above -- startNextGame reads it back
+  // through computeWordSet, so a game already in progress keeps the
+  // words it was dealt.
+  public selectWordBank(id) {
+    const vals = { ...this.state.settings, wordBank: id };
+    this.setState({ settings: vals });
+    Settings.save(vals);
+  }
+
   // Pushes a timer config change to the live game -- unlike the other
   // settings above, which are purely local preferences, the timer is
   // shared game state: it needs to reach every connected player, and
@@ -592,6 +602,7 @@ export class Game extends React.Component {
         <SettingsPanel
           toggleView={(e) => this.toggleSettingsView(e)}
           toggle={(e, setting) => this.toggleSetting(e, setting)}
+          selectWordBank={(id) => this.selectWordBank(id)}
           values={this.state.settings}
         >
           <TimerSettings

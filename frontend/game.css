@@ -954,6 +954,51 @@ button#timer:hover .timer-icon {
   left: calc(50% + 0px);
 }
 
+/* A setting that's currently moot (e.g. Mature while the Holiday bank
+   is selected). Greyed but still clickable, so flipping it stays
+   remembered for when the bank it applies to is picked again. */
+.toggle-set.dimmed {
+  opacity: 0.45;
+}
+
+/* Word bank picker: a segmented pill in the same family as .toggle and
+   .role-switch -- same paper track, same brass knob look on the
+   selected option. flex: none keeps it from shrinking so its right
+   edge lines up with the toggles above and below it. */
+.bank-select {
+  display: inline-flex;
+  flex: none;
+  box-sizing: border-box;
+  padding: 3px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background-color: var(--paper-2);
+}
+.bank-option {
+  font-family: var(--mono);
+  font-size: 0.75em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.55em 1.2em;
+  /* Transparent rather than none, so the selected option's border
+     doesn't make it wider than its neighbours and shift the layout. */
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  opacity: 0.55;
+  cursor: pointer;
+}
+.bank-option.active {
+  opacity: 1;
+  color: var(--paper);
+  border-color: #3f3a20;
+  background: linear-gradient(180deg, #8a7a48, var(--olive) 60%, #55502c);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
 .toggle-state {
   font-weight: bold;
   font-family: var(--mono);

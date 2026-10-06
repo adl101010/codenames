@@ -27,7 +27,7 @@ Everything below is specific to this fork; none of it exists upstream.
 - **A live, pausable timer** — turn on mid-game from the settings menu (not just at creation), and the clue giver can pause/resume it anytime.
 - **Typewriter clue reveal** — a new clue types itself out on the player view with mechanical key-click sounds, muteable in settings.
 - **Mature word filter** — off by default, capped at 4 mature words per board when enabled.
-- **Bigger word bank** — English-only, with Valorant, CS2, and WoW words mixed in.
+- **Selectable word banks** — pick what the next game is dealt from in settings: the Standard bank (English-only, with Valorant, CS2, and WoW words mixed in) or a Holiday bank for seasonal game nights.
 
 ### Visual design
 

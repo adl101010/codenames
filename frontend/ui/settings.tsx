@@ -1,5 +1,7 @@
 import * as React from 'react';
 import ToggleSet from '~/ui/toggle-set';
+import WordBankSelect from '~/ui/word-bank-select';
+import { DEFAULT_WORD_BANK } from '~/wordset';
 
 const settingToggles = [
   {
@@ -12,6 +14,9 @@ const settingToggles = [
     setting: 'matureWords',
     desc:
       'Include mature (Deep Undercover) words in future games. Off by default.',
+    // Mixes into the Standard bank only; moot while another bank is picked.
+    standardOnly: true,
+    standardOnlyDesc: 'Only applies to the Standard word bank.',
   },
   {
     name: 'Sound',
@@ -26,6 +31,7 @@ const settingToggles = [
 const defaultSettings = {
   fullscreen: true,
   sound: true,
+  wordBank: DEFAULT_WORD_BANK,
 };
 
 export class Settings {
@@ -109,14 +115,30 @@ export class SettingsPanel extends React.Component {
         <div className="settings-content">
           <h2>SETTINGS</h2>
           <div className="toggles">
-            {settingToggles.map((toggle) => (
-              <ToggleSet
-                key={toggle.name}
-                values={this.props.values}
-                toggle={toggle}
-                handleToggle={this.props.toggle}
-              />
-            ))}
+            <WordBankSelect
+              value={this.props.values.wordBank}
+              handleSelect={this.props.selectWordBank}
+            />
+            {settingToggles.map((toggle) => {
+              // A standard-bank-only setting (Mature) is greyed out, with
+              // its description swapped to say why, while another bank
+              // is selected -- otherwise it'd be a switch that visibly
+              // does nothing.
+              const moot =
+                toggle.standardOnly &&
+                this.props.values.wordBank !== DEFAULT_WORD_BANK;
+              return (
+                <ToggleSet
+                  key={toggle.name}
+                  values={this.props.values}
+                  toggle={
+                    moot ? { ...toggle, desc: toggle.standardOnlyDesc } : toggle
+                  }
+                  dimmed={moot}
+                  handleToggle={this.props.toggle}
+                />
+              );
+            })}
           </div>
           {this.props.children}
         </div>
