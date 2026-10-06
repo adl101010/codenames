@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -171,6 +172,11 @@ type Game struct {
 	// server-side, to compute how long the timer was paused for when
 	// it's resumed. See PauseTimer/ResumeTimer.
 	pausedAt time.Time
+	// Theme is the look every connected screen shows for this game (see
+	// SetTheme). Stored on the game rather than in each browser so the TV
+	// and the iPad can't disagree. "" means never chosen, which renders
+	// the same as "classic". No omitempty, for the same reason as above.
+	Theme string `json:"theme"`
 	GameOptions
 }
 
@@ -228,6 +234,27 @@ func (g *Game) ResumeTimer() error {
 	}
 	g.RoundStartedAt = g.RoundStartedAt.Add(time.Since(g.pausedAt))
 	g.TimerPaused = false
+	g.UpdatedAt = time.Now()
+	return nil
+}
+
+// themeIDPattern is the shape of a theme id: short, lowercase letters
+// only. The server deliberately doesn't keep its own list of valid
+// themes -- the frontend owns what themes exist and treats an id it
+// doesn't recognise as the default look -- it only refuses anything that
+// isn't plausibly an id, since the value is echoed to every client and
+// used there as a CSS hook.
+var themeIDPattern = regexp.MustCompile(`^[a-z]{1,16}$`)
+
+// SetTheme changes the look for every screen on this game. "" is allowed
+// and means back to the default. Unlike SetOptions this deliberately
+// leaves the timer alone: switching to a snowy theme mid-turn must not
+// restart anyone's clock.
+func (g *Game) SetTheme(theme string) error {
+	if theme != "" && !themeIDPattern.MatchString(theme) {
+		return errors.New("theme must be 1-16 lowercase letters")
+	}
+	g.Theme = theme
 	g.UpdatedAt = time.Now()
 	return nil
 }

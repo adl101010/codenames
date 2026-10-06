@@ -269,6 +269,34 @@ func (s *Server) handleSetOptions(rw http.ResponseWriter, req *http.Request) {
 	writeGame(rw, gh)
 }
 
+// handleSetTheme changes the look for every screen on a game. It's stored
+// on the game and sent with every game state, so each browser picks it up
+// on its next poll.
+func (s *Server) handleSetTheme(rw http.ResponseWriter, req *http.Request) {
+	var request struct {
+		GameID string `json:"game_id"`
+		Theme  string `json:"theme"`
+	}
+
+	decoder := json.NewDecoder(req.Body)
+	if err := decoder.Decode(&request); err != nil {
+		http.Error(rw, "Error decoding", 400)
+		return
+	}
+
+	gh := s.getGame(request.GameID)
+	var err error
+	gh.update(func(g *Game) bool {
+		err = g.SetTheme(request.Theme)
+		return err == nil
+	})
+	if err != nil {
+		http.Error(rw, err.Error(), 400)
+		return
+	}
+	writeGame(rw, gh)
+}
+
 // handleToggleTimer flips the timer between paused and running -- one
 // endpoint rather than separate pause/resume ones, since the frontend
 // always knows the current state (it's part of the game object already)
@@ -371,7 +399,14 @@ func (s *Server) handleNextGame(rw http.ResponseWriter, req *http.Request) {
 			} else {
 				nextState = nextGameState(gh.g.GameState)
 			}
-			gh = newHandle(newGame(request.GameID, nextState, opts), s.Store)
+			nextGame := newGame(request.GameID, nextState, opts)
+			// The theme belongs to the table, not to one board, so it
+			// carries over from the game being replaced. Done here on
+			// the server rather than trusting each client to re-send
+			// it, so a stale tab can't quietly reset everyone's theme.
+			// Must happen before newHandle, which saves immediately.
+			nextGame.Theme = previousGame.Theme
+			gh = newHandle(nextGame, s.Store)
 			s.games[request.GameID] = gh
 
 			// signal to waiting /game-state goroutines that the
@@ -523,6 +558,7 @@ func (s *Server) Start(games map[string]*Game) error {
 	s.mux.HandleFunc("/set-clue", s.handleSetClue)
 	s.mux.HandleFunc("/set-options", s.handleSetOptions)
 	s.mux.HandleFunc("/toggle-timer", s.handleToggleTimer)
+	s.mux.HandleFunc("/set-theme", s.handleSetTheme)
 	s.mux.HandleFunc("/game-state", s.handleGameState)
 	s.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("frontend/dist"))))
 	s.mux.HandleFunc("/", s.handleIndex)

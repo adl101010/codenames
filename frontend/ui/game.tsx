@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Settings, SettingsButton, SettingsPanel } from '~/ui/settings';
 import Timer from '~/ui/timer';
 import TimerSettings from '~/ui/timer_settings';
+import ThemePicker from '~/ui/theme-picker';
+import { applyTheme } from '~/ui/theme';
 import { playKeyClack, playBell, unlock as unlockAudio } from '~/ui/sound';
 import { computeWordSet, toggleBank } from '~/wordset';
 
@@ -125,6 +127,13 @@ export class Game extends React.Component {
 
   public componentDidUpdate(prevProps, prevState) {
     this.setTurnIndicatorFavicon(prevProps, prevState);
+
+    // The theme lives on the game, so it arrives with every game state --
+    // from this browser's own pick or from another device's, picked up on
+    // the next poll. applyTheme does nothing if it hasn't changed.
+    if (prevState?.game?.theme !== this.state.game?.theme) {
+      applyTheme(this.state.game?.theme);
+    }
   }
 
   // Diffs an old and new game to find cards that just flipped from hidden
@@ -480,6 +489,20 @@ export class Game extends React.Component {
       });
   }
 
+  // Changes the look for everyone at the table, not just this browser:
+  // it's stored on the game, so every connected screen picks it up on its
+  // next poll. Deliberately not a local setting like the word banks above.
+  public setTheme(theme) {
+    axios
+      .post('/set-theme', {
+        game_id: this.state.game.id,
+        theme: theme,
+      })
+      .then(({ data }) => {
+        this.setState({ game: data });
+      });
+  }
+
   // Clue giver only -- the whole timer pill is the button (see render()),
   // one endpoint flips whichever state it's currently in.
   public toggleTimerPause(e) {
@@ -609,6 +632,10 @@ export class Game extends React.Component {
           toggleWordBank={(id) => this.toggleWordBank(id)}
           values={this.state.settings}
         >
+          <ThemePicker
+            theme={this.state.game.theme}
+            handleSelect={(id) => this.setTheme(id)}
+          />
           <TimerSettings
             timer={
               this.state.game.timer_duration_ms > 0

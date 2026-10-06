@@ -9,6 +9,14 @@
   --olive: #6b6b3a;
   --redacted: #171512;
   --line: rgba(33, 31, 24, 0.35);
+  /* What sits directly on the page background, kept apart from --ink and
+     --line because cards and modals use those too: a holiday theme (see
+     the themes section at the bottom) recolours these four without
+     touching a card. Each defaults to exactly the value it had before. */
+  --page-ink: var(--ink);
+  --page-line: var(--line);
+  --tally-red: var(--brick);
+  --tally-blue: var(--navy);
   --mono: ui-monospace, 'SFMono-Regular', 'Courier New', monospace;
   --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
 }
@@ -18,13 +26,13 @@
   width: 700px;
   margin: 0 auto;
   font-family: var(--serif);
-  color: var(--ink);
+  color: var(--page-ink);
 }
 
 #infoContent {
   font-family: var(--mono);
   font-size: 0.85em;
-  border-bottom: 1px dashed var(--line);
+  border-bottom: 1px dashed var(--page-line);
   display: grid;
   grid-auto-flow: column;
   grid-gap: 2em;
@@ -34,7 +42,7 @@
 }
 
 #share {
-  color: var(--ink);
+  color: var(--page-ink);
   opacity: 0.65;
   font-size: 0.85em;
 }
@@ -236,8 +244,8 @@ button#timer:hover .timer-icon {
   letter-spacing: 0.08em;
   font-size: 0.85em;
   padding: 0.6em 0.1em;
-  border-top: 1px dashed var(--line);
-  border-bottom: 1px dashed var(--line);
+  border-top: 1px dashed var(--page-line);
+  border-bottom: 1px dashed var(--page-line);
 }
 /* Wraps the turn badge and the timer together, since #timer moved here
    from #infoContent (the clue display took its old spot -- see
@@ -293,18 +301,18 @@ button#timer:hover .timer-icon {
   letter-spacing: 0.06em;
 }
 .red-tally .team-dot {
-  background: var(--brick);
+  background: var(--tally-red);
 }
 .red-tally .team-label,
 .red-tally .team-count {
-  color: var(--brick);
+  color: var(--tally-red);
 }
 .blue-tally .team-dot {
-  background: var(--navy);
+  background: var(--tally-blue);
 }
 .blue-tally .team-label,
 .blue-tally .team-count {
-  color: var(--navy);
+  color: var(--tally-blue);
 }
 
 #end-turn-cont {
@@ -384,8 +392,8 @@ button#timer:hover .timer-icon {
   margin: 2px 8px 0;
 }
 #mode-toggle button.gear svg path {
-  fill: var(--ink);
-  stroke: var(--ink);
+  fill: var(--page-ink);
+  stroke: var(--page-ink);
 }
 
 /* Player / clue-giver slide switch. A single physical-style switch
@@ -872,6 +880,15 @@ button#timer:hover .timer-icon {
   background-color: var(--paper);
   color: var(--ink);
   font-family: var(--serif);
+  /* Above the theme decor layer (z-index 5): settings is a plain
+     utility screen and shouldn't have snow falling over its text. */
+  z-index: 20;
+  /* It's a fixed full-screen layer, so without this anything past the
+     bottom of the screen is simply unreachable. That used to be a
+     non-issue; with the word banks and theme list it's taller than an
+     iPad in landscape. touch scrolling keeps it smooth on iOS. */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .settings h2 {
@@ -893,7 +910,9 @@ button#timer:hover .timer-icon {
 .settings-content {
   max-width: 600px;
   width: 95vw;
-  margin: 1em auto;
+  /* The extra bottom space keeps the last row clear of the screen edge
+     once the layer scrolls. */
+  margin: 1em auto 4em;
 }
 
 .settings h2 {
@@ -1097,4 +1116,250 @@ button#timer:hover .timer-icon {
   background: var(--paper-2);
   color: var(--ink);
   border: 1px solid var(--ink);
+}
+
+/* ---------- Holiday themes ----------
+   The theme is stored on the game and applied as data-theme on <html> (see
+   ui/theme.ts), so all of this only takes effect when a theme is chosen --
+   with none set, nothing below matches and the page is exactly the Classic
+   look. A theme recolours the page and swaps a few tokens; cards, tiles and
+   modals keep their own colors, which is what keeps a revealed card
+   readable the same way in every theme.
+
+   Kept to plain syntax on purpose: this stylesheet goes through an old
+   minifier (cssnano 4) that mangles some modern CSS. */
+
+/* The theme sets the background on <html>; the body's own (Classic's)
+   would paint over it. */
+html[data-theme] body {
+  background: transparent;
+}
+
+/* Snowfall: pale and cold, light page, so the default dark text stays. */
+html[data-theme="snow"] {
+  --page-ink: #1c2a33;
+  --page-line: rgba(28, 42, 51, 0.35);
+  background-color: #b3c5d2;
+  background-image: linear-gradient(180deg, #d9e5ec 0%, #b3c5d2 100%);
+  background-attachment: fixed;
+}
+html[data-theme="snow"] body {
+  padding-top: 1rem;
+}
+html[data-theme="snow"] #game-view {
+  --paper-2: #f1f5f7;
+}
+
+/* The three dark themes share the same fixes: light text and rules on
+   the page, and lighter tints for the team tallies, whose usual brick
+   red and navy would vanish against a dark background. */
+html[data-theme="evergreen"] {
+  --page-ink: #f1e8cf;
+  --page-line: rgba(226, 196, 106, 0.5);
+  --page-edge: #e2c46a;
+  /* Lighter than the other dark themes' tallies: the green's brightest
+     spot (top centre) is the lightest background any of them has, and
+     the shared tints only reach about 4:1 there. These clear 4.5:1. */
+  --tally-red: #f8c8c0;
+  --tally-blue: #cfe2ee;
+  background-color: #162f23;
+  background-image: radial-gradient(ellipse at 50% 0%, #2f5f46 0%, #1c3b2c 62%, #162f23 100%);
+  background-attachment: fixed;
+}
+html[data-theme="evergreen"] body {
+  /* Room for the strand of lights across the top. Kept as small as it
+     can be: on a 1080p TV the board already fills almost the whole
+     screen, and anything much more than this pushes the page a few
+     pixels past the bottom edge, which puts a scrollbar on the TV. */
+  padding-top: 1.2rem;
+}
+html[data-theme="fire"] {
+  --page-ink: #f2dfc3;
+  --page-line: rgba(242, 176, 108, 0.38);
+  --page-edge: #d99a4a;
+  --tally-red: #f2aaa0;
+  --tally-blue: #b0cbdc;
+  background-color: #241812;
+  background-attachment: fixed;
+}
+html[data-theme="nye"] {
+  --page-ink: #efe7d2;
+  --page-line: rgba(222, 190, 110, 0.5);
+  --page-edge: #d8b45a;
+  --tally-red: #f2aaa0;
+  --tally-blue: #b0cbdc;
+  background-color: #17111f;
+  background-image: radial-gradient(ellipse at 50% 0%, #2d2343 0%, #17111f 68%);
+  background-attachment: fixed;
+}
+
+/* The turn badge is navy or brick; on a dark page its edge needs a
+   lighter outline or it merges into the background. */
+html[data-theme="evergreen"] #status-line .status-text,
+html[data-theme="fire"] #status-line .status-text,
+html[data-theme="nye"] #status-line .status-text {
+  border-color: var(--page-edge);
+}
+
+/* Fireside: the glow sits behind the page content (z-index -1, with the
+   body made transparent above), so it lights the gaps and edges rather
+   than tinting the cards. */
+html[data-theme="fire"]::before {
+  content: '';
+  position: fixed;
+  left: -15%;
+  right: -15%;
+  bottom: -35%;
+  height: 125%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 100%, rgba(255, 160, 60, 0.9) 0%, rgba(226, 106, 30, 0.5) 36%, rgba(214, 92, 24, 0) 74%);
+  animation: td-flicker 2.6s ease-in-out infinite;
+}
+@keyframes td-flicker {
+  0%, 100% { opacity: 0.8; }
+  35% { opacity: 1; }
+  60% { opacity: 0.72; }
+  80% { opacity: 0.95; }
+}
+
+/* The decorative layer (snow, lights, embers, confetti), built in
+   ui/theme.ts. Above the game but never in the way of a tap, and below
+   the confirmation dialogs (z-index 10) and settings (20). */
+#theme-decor {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+.td-flake,
+.td-ember,
+.td-conf {
+  position: absolute;
+  will-change: transform;
+  animation-iteration-count: infinite;
+}
+.td-flake {
+  border-radius: 50%;
+  background: #fff;
+  animation-name: td-fall;
+  animation-timing-function: linear;
+}
+.td-ember {
+  border-radius: 50%;
+  background: #ffb457;
+  box-shadow: 0 0 6px #ff8a2a;
+  animation-name: td-rise;
+  animation-timing-function: ease-out;
+}
+.td-conf {
+  transform: rotate(var(--r));
+  animation-name: td-drop;
+  animation-timing-function: linear;
+}
+@keyframes td-fall {
+  from { transform: translate3d(0, var(--y0), 0); }
+  to { transform: translate3d(var(--dr), var(--y1), 0); }
+}
+@keyframes td-rise {
+  from { transform: translate3d(0, var(--y0), 0); opacity: 0; }
+  12% { opacity: 1; }
+  to { transform: translate3d(var(--dr), var(--y1), 0); opacity: 0; }
+}
+@keyframes td-drop {
+  from { transform: translate3d(0, var(--y0), 0) rotate(var(--r)); }
+  to { transform: translate3d(var(--dr), var(--y1), 0) rotate(var(--r2)); }
+}
+
+.td-frost {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 22px;
+  background-image: radial-gradient(circle at 10px -2px, #fff 11px, rgba(255, 255, 255, 0) 12px);
+  background-size: 20px 22px;
+  background-repeat: repeat-x;
+  filter: drop-shadow(0 1px 1px rgba(60, 90, 110, 0.35));
+}
+
+.td-lights {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.td-lights::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 3px;
+  height: 2px;
+  background: rgba(8, 22, 14, 0.85);
+}
+.td-bulb {
+  position: relative;
+  width: 10px;
+  height: 15px;
+  border-radius: 50% 50% 46% 46%;
+  background: var(--c);
+  box-shadow: 0 0 10px 1px var(--c);
+  animation: td-twinkle 2.1s ease-in-out infinite;
+}
+.td-bulb::before {
+  content: '';
+  position: absolute;
+  left: 25%;
+  right: 25%;
+  top: -4px;
+  height: 5px;
+  background: #0c1a12;
+  border-radius: 1px;
+}
+@keyframes td-twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.38; }
+}
+
+/* Motion is decoration. Anyone who's asked their device for less of it
+   gets the themes' colors, but static. */
+@media (prefers-reduced-motion: reduce) {
+  #theme-decor *,
+  html[data-theme="fire"]::before {
+    animation: none !important;
+  }
+}
+
+/* Swatches in the Settings theme picker. */
+.theme-swatch {
+  flex: none;
+  box-sizing: border-box;
+  width: 2.8em;
+  height: 1.8em;
+  border: 1px solid var(--ink);
+  border-radius: 3px;
+  background-color: var(--paper-2);
+}
+.swatch-classic {
+  background-color: #c2b483;
+}
+.swatch-snow {
+  background-image: linear-gradient(180deg, #d9e5ec 0%, #b3c5d2 100%);
+}
+.swatch-evergreen {
+  background-image: radial-gradient(ellipse at 50% 0%, #2f5f46 0%, #162f23 100%);
+}
+.swatch-fire {
+  background-image: radial-gradient(ellipse at 50% 120%, #ff9a3c 0%, #d65c18 30%, #241812 75%);
+}
+.swatch-nye {
+  background-image: radial-gradient(ellipse at 50% 0%, #2d2343 0%, #17111f 100%);
 }
